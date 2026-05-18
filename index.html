@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dinozor Macerası</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loadingMessage">Görseller yükleniyor...</div>
+    <div id="scoreBoard">MESAFE: 0</div>
+    <div id="playerHealth">CAN: 5</div>
+    <div id="bossHealth">BOSS CANI</div>
+    <div id="bossHealthBar"><div id="bossHealthFill"></div></div>
+    <div id="startMessage">Tıkla ve Başla!<br><small>Engellerden kaç, bossu yen!</small></div>
+    <div id="gameOver">
+        KAYBETTİN!
+        <p>Yeniden başlamak için tıkla</p>
+    </div>
+    <div id="victoryMessage">
+        KAZANDIN!
+    </div>
+    <div id="instructions">
+        Tıkla = Zıpla | Çift Tık = Çift Zıplama | P = Duraklat | WASD = Hareket (Boss) | Space = Ateş (Boss)
+    </div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

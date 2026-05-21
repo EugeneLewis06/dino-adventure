@@ -174,6 +174,21 @@ export function drawPit(ctx, x, y, width, canvasHeight) {
     ctx.stroke();
 }
 
+// Kaplumbağa çiz
+export function drawTurtle(ctx, turtleImage, x, y, frameCount) {
+    const bounceY = Math.abs(Math.sin(frameCount * 0.05)) * 120;
+    const drawY = y - bounceY;
+
+    if (turtleImage.complete && turtleImage.naturalWidth > 0) {
+        ctx.drawImage(turtleImage, x, drawY, 70, 60);
+    } else {
+        ctx.fillStyle = '#2d5016';
+        ctx.beginPath();
+        ctx.ellipse(x + 35, drawY + 30, 35, 30, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
 // Kalp çiz
 export function drawHeart(ctx, heart, frameCount) {
     const x = heart.x;
@@ -230,20 +245,22 @@ export function spawnHeart(gameMode, groundY, canvasWidth, onSound) {
 export function spawnObstacle(gameMode, gameTime, groundY, canvasWidth, canvasHeight, randomFn = Math.random) {
     if (gameMode !== 'normal') return null;
     
-    // Değişken gap
-    const baseMinGap = gameTime >= 60 ? 800 : 1200;
-    const baseMaxGap = gameTime >= 60 ? 1800 : 2500;
+    // Değişken gap - daha sık engeller
+    const baseMinGap = gameTime >= 60 ? 600 : 900;
+    const baseMaxGap = gameTime >= 60 ? 1400 : 1800;
     
     const currentTime = Date.now();
     
-    if (currentTime - lastObstacleTime > nextGap && randomFn() < 0.25) {
+    if (currentTime - lastObstacleTime > nextGap && randomFn() < 0.4) {
         nextGap = baseMinGap + randomFn() * (baseMaxGap - baseMinGap);
         let type;
         
-        if (gameTime >= 60 && randomFn() < 0.3) {
+        if (gameTime >= 30 && randomFn() < 0.3) {
             type = 'pit';
+        } else if (gameTime >= 60 && randomFn() < 0.4) {
+            type = 'turtle';
         } else {
-            type = randomFn() < 0.6 ? 'cactus' : 'bird';
+            type = randomFn() < 0.5 ? 'cactus' : 'bird';
         }
         
         let obstacle;
@@ -254,6 +271,15 @@ export function spawnObstacle(gameMode, gameTime, groundY, canvasWidth, canvasHe
                 width: 100,
                 height: canvasHeight,
                 type: type,
+                passed: false
+            };
+        } else if (type === 'turtle') {
+            obstacle = {
+                x: canvasWidth,
+                y: groundY - 70,
+                width: 70,
+                height: 60,
+                type: 'turtle',
                 passed: false
             };
         } else {
@@ -275,7 +301,7 @@ export function spawnObstacle(gameMode, gameTime, groundY, canvasWidth, canvasHe
 
 // Tüm engelleri ve kalpleri güncelle ve çiz
 export function updateObstacles(gameState, ctx) {
-    const { gameMode, gameTime, groundY, canvas, speed, timeScale, frameCount, onSound } = gameState;
+    const { gameMode, gameTime, groundY, canvas, speed, currentTimeScale, frameCount, onSound } = gameState;
     
     // gameState'i ayarla
     setObstacleGameState(gameState);
@@ -287,7 +313,7 @@ export function updateObstacles(gameState, ctx) {
     
     // Engelleri güncelle ve çiz
     obstacles = obstacles.filter(obs => {
-        obs.x -= speed * timeScale;
+        obs.x -= speed * currentTimeScale;
         
         if (obs.type === 'cactus') {
             drawCactus(ctx, obs.x, obs.y);
@@ -302,7 +328,7 @@ export function updateObstacles(gameState, ctx) {
     
     // Kalpleri güncelle ve çiz
     hearts = hearts.filter(heart => {
-        heart.x -= speed * timeScale;
+        heart.x -= speed * currentTimeScale;
         drawHeart(ctx, heart, frameCount);
         return heart.x > -50;
     });

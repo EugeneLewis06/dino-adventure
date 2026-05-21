@@ -21,8 +21,8 @@ describe('bossShoot', () => {
 
     // Açıyı manuel hesapla ve vx/vy'yi doğrula
     const expectedAngle = Math.atan2((dino.y - 30) - (bossObj.y - 20), dino.x - bossObj.x);
-    const expectedVx = Math.cos(expectedAngle) * 6;
-    const expectedVy = Math.sin(expectedAngle) * 6;
+    const expectedVx = Math.cos(expectedAngle) * 9;
+    const expectedVy = Math.sin(expectedAngle) * 9;
 
     expect(bullet.vx).toBeCloseTo(expectedVx, 10);
     expect(bullet.vy).toBeCloseTo(expectedVy, 10);

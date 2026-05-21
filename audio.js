@@ -156,6 +156,7 @@ export function drawSoundIcon(ctx, canvas, soundEnabled) {
 }
 
 export function startBackgroundMusic(gameRunning, gameMode) {
+    if (bgMusicInterval) clearInterval(bgMusicInterval);
     if (!soundEnabled) return;
     const melody = [330, 392, 523, 392, 330, 294, 330, 392];
     let noteIndex = 0;

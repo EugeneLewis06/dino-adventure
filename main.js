@@ -2,7 +2,7 @@
 import { checkCollision } from './utils.js';
 import { play8BitSound, toggleSound, drawSoundIcon, startBackgroundMusic, stopBackgroundMusic, audioCtx } from './audio.js';
 import { scoreBoard, playerHealthDiv, bossHealthDiv, bossHealthBar, bossHealthFill, gameOverScreen, startMessage, victoryMessage, loadingMessage, hideLoadingMessage, updateScoreBoard, resetUI, showBossUI, updateBossHealth, updatePlayerHealth, hideBossUI, showGameOver, hideGameOver, showBossUpgradeScreen, updateDebugUI, removeDebugUI } from './ui.js';
-import { hearts, obstacles, clouds, mountains, createClouds, createMountains, spawnHeart, spawnObstacle, drawHeart, drawCactus, drawBird, drawPit, updateObstacles, resetObstacles, resetCloudsAndMountains, filterHearts, filterObstacles, isDinoInPit } from './obstacles.js';
+import { hearts, obstacles, clouds, mountains, createClouds, createMountains, spawnHeart, spawnObstacle, drawHeart, drawCactus, drawBird, drawPit, drawTurtle, updateObstacles, resetObstacles, resetCloudsAndMountains, filterHearts, filterObstacles, isDinoInPit } from './obstacles.js';
 import { dino, drawRealDino, jump, shoot, specialShoot } from './player.js';
 import { boss, drawElephant, bossShoot, updateBossPosition } from './boss.js';
 
@@ -19,13 +19,15 @@ canvas.height = window.innerHeight;
 // GÖRSEL YÜKLEME
 const dinoImage = new Image();
 const elephantImage = new Image();
+const turtleImage = new Image();
 let imagesLoaded = 0;
 
 // Chrome Dino - YENI SVG (kullanicinin gonderdigi)
 dinoImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMTIiIHk9IjQ0IiB3aWR0aD0iOCIgaGVpZ2h0PSIxNiIgZmlsbD0iIzUzNTM1MyIvPgo8cmVjdCB4PSIyNCIgeT0iNDQiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiBmaWxsPSIjNTM1MzUzIi8+CjxyZWN0IHg9IjE2IiB5PSIzNiIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiBmaWxsPSIjNTM1MzUzIi8+CjxyZWN0IHg9IjI0IiB5PSIyOCIgd2lkdGg9IjgiIGhlaWdodD0iMTIiIGZpbGw9IiM1MzUzNTMiLz4KPHJlY3QgeD0iMzIiIHk9IjI0IiB3aWR0aD0iMTIiIGhlaWdodD0iMTYiIGZpbGw9IiM1MzUzNTMiLz4KPHJlY3QgeD0iNDQiIHk9IjI0IiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjNTM1MzUzIi8+CjxyZWN0IHg9IjQ0IiB5PSIyMCIgd2lkdGg9IjgiIGhlaWdodD0iNCIgZmlsbD0iIzUzNTM1MyIvPgo8cmVjdCB4PSI1MiIgeT0iMjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiM1MzUzNTMiLz4KPHJlY3QgeD0iNDAiIHk9IjI4IiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmZmZmIi8+CjxyZWN0IHg9IjQ0IiB5PSIyOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzUzNTM1MyIvPgo8cmVjdCB4PSI0IiB5PSIzNiIgd2lkdGg9IjgiIGhlaWdodD0iMTIiIGZpbGw9IiM1MzUzNTMiLz4KPC9zdmc+';
 
-// Fil silueti
-elephantImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEyMCAxMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwIDgwTDIwIDYwTDMwIDYwTDMwIDUwTDQwIDUwTDQwIDQwTDUwIDQwTDUwIDMwTDYwIDMwTDYwIDIwTDgwIDIwTDgwIDEwTDkwIDEwTDkwIDVMMTAwIDVMMTAwIDE1TDkwIDE1TDkwIDI1TDgwIDI1TDgwIDM1TDkwIDM1TDkwIDQ1TDgwIDQ1TDgwIDU1TDcwIDU1TDcwIDY1TDYwIDY1TDYwIDc1TDUwIDc1TDUwIDg1TDQwIDg1TDQwIDc1TDMwIDc1TDMwIDg1TDIwIDg1TDIwIDk1TDEwIDk1TDEwIDgwWiIgZmlsbD0iIzdjN2M3YyIvPjwvc3ZnPg==';
+// Fil görseli
+elephantImage.src = 'elephant.png';
+turtleImage.src = 'turtle.png';
 
 dinoImage.onload = () => {
     imagesLoaded++;
@@ -45,23 +47,38 @@ elephantImage.onerror = () => {
     hideLoadingMessage();
 };
 
+turtleImage.onload = () => {
+    imagesLoaded++;
+    hideLoadingMessage();
+};
+
+turtleImage.onerror = () => {
+    imagesLoaded++;
+    hideLoadingMessage();
+};
+
 // Oyun değişkenleri - ZAMAN BAZLI
 let gameRunning = false;
 let gameMode = 'normal';
 let gamePaused = false; // Duraklatma durumu - P tuşu ile kontrol edilir
 let gameTime = 0; // Oyun süresi (saniye)
 let gameStartTime = 0; // Başlangıç zamanı
+let totalPausedTime = 0; // Duraklatma süreleri toplamı
+let pauseStartTime = 0; // Son duraklatma başlangıcı
 let score = 0; // Engellerden geçme sayısı (referans için)
 let speed = 5.5; // Daha hızlı başlangıç
 let frameCount = 0;
+let lastSpeedUpTime = -1;
 let lastClickTime = 0;
 
 // DeltaTime sistemi - yüksek Hz monitörlerde sabit hız
 let lastTime = 0;
+let currentTimeScale = 1;
 const TARGET_FPS = 60;
 const TARGET_FRAME_TIME = 1000 / TARGET_FPS; // ~16.67ms
 
 let groundY = canvas.height - 100; // let olmalı ki resize'ta değişebilsin
+let restartBtn = null;
 
 
 
@@ -120,7 +137,7 @@ function getObstacleGameState() {
         groundY,
         canvas,
         speed,
-        timeScale,
+        currentTimeScale,
         frameCount,
         onSound: (type) => play8BitSound(type)
     };
@@ -147,7 +164,7 @@ function drawBackground() {
         ctx.arc(cloud.x + cloud.width / 1.5, cloud.y, cloud.width / 2, 0, Math.PI * 2);
         ctx.fill();
 
-        cloud.x -= cloud.speed;
+        cloud.x -= cloud.speed * currentTimeScale;
         if (cloud.x + cloud.width < 0) {
             cloud.x = canvas.width + cloud.width;
         }
@@ -162,7 +179,7 @@ function drawBackground() {
         ctx.lineTo(mountain.x + mountain.width, mountain.y);
         ctx.fill();
 
-        mountain.x -= speed * 0.2;
+        mountain.x -= speed * 0.2 * currentTimeScale;
         if (mountain.x + mountain.width < 0) {
             mountain.x = canvas.width;
             mountain.height = Math.random() * 100 + 50;
@@ -184,7 +201,7 @@ function drawGround() {
     ctx.strokeStyle = '#1a6b1a';
     ctx.lineWidth = 2;
     for (let i = 0; i < canvas.width; i += 30) {
-        const offset = (i - frameCount * speed) % canvas.width;
+        const offset = (i - frameCount * speed * currentTimeScale) % canvas.width;
         const x = offset < 0 ? offset + canvas.width : offset;
         
         ctx.beginPath();
@@ -199,7 +216,7 @@ function drawGround() {
 
     // Çiçekler
     for (let i = 50; i < canvas.width; i += 200) {
-        const offset = (i - frameCount * speed) % canvas.width;
+        const offset = (i - frameCount * speed * currentTimeScale) % canvas.width;
         const x = offset < 0 ? offset + canvas.width : offset;
         
         ctx.fillStyle = '#ff6b9d';
@@ -310,8 +327,8 @@ function formatBossTime(duration) {
 
 // Victory sahnesi çiz - sadece en iyi BOSS savaş süreleri
 function drawDanceScene() {
-    drawBackground();
-    drawGround();
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // İlk 3 en iyi BOSS savaşı süresini göster
     const topTimes = getTopBossTimes().slice(0, 3);
@@ -337,6 +354,31 @@ function drawDanceScene() {
             ctx.fillText(`Bu savaş: ${formatBossTime(bossBattleDuration)}`, canvas.width / 2, canvas.height / 2 + 160);
         }
     }
+    
+    // Tekrar Oyna Butonu
+    const btnW = 280;
+    const btnH = 60;
+    const btnX = canvas.width / 2 - btnW / 2;
+    const btnY = canvas.height / 2 + 200;
+
+    // Buton arka planı
+    ctx.fillStyle = '#2d5016';
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(btnX, btnY, btnW, btnH, 15);
+    ctx.fill();
+    ctx.stroke();
+
+    // Buton metni
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 28px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🔄 Tekrar Oyna', canvas.width / 2, btnY + btnH / 2);
+
+    // Buton koordinatlarını global bir değişkene ata
+    restartBtn = { x: btnX, y: btnY, w: btnW, h: btnH };
     
     // Ses ikonunu çiz
     drawSoundIcon(ctx, canvas, soundEnabled);
@@ -367,9 +409,33 @@ function drawPausedScreen() {
     drawSoundIcon(ctx, canvas, soundEnabled);
 }
 
+// Ekran titreşimi tetikle
+function triggerScreenShake() {
+    const duration = 200;
+    const startTime = Date.now();
+    const originalTransform = gameCanvas.style.transform;
+
+    function shake() {
+        const elapsed = Date.now() - startTime;
+        if (elapsed >= duration) {
+            gameCanvas.style.transform = originalTransform;
+            return;
+        }
+        const offsetX = (Math.random() - 0.5) * 10;
+        const offsetY = (Math.random() - 0.5) * 10;
+        gameCanvas.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        requestAnimationFrame(shake);
+    }
+
+    shake();
+}
+
 // Oyun döngüsü
 function gameLoop(currentTime) {
     if (!gameRunning) return;
+
+    bullets = bullets.filter(b => b.x > -50 && b.x < canvas.width + 50);
+    bossBullets = bossBullets.filter(b => b.x > -50 && b.x < canvas.width + 50);
 
     // Defensive: currentTime yoksa performance.now() kullan
     if (!currentTime) currentTime = performance.now();
@@ -385,7 +451,7 @@ function gameLoop(currentTime) {
     lastTime = currentTime;
     
     // Zaman ölçeği (60 FPS baz alınarak)
-    const timeScale = Math.min(deltaTime / TARGET_FRAME_TIME, 2); // Maksimum 2x hız sınırı
+    currentTimeScale = Math.min(deltaTime / TARGET_FRAME_TIME, 2); // Maksimum 2x hız sınırı
 
     // Duraklatma kontrolü - oyun duraklatıldığında sadece ekran çizilir
     if (gamePaused) {
@@ -410,26 +476,24 @@ function gameLoop(currentTime) {
     // Normal mod
     if (gameMode === 'normal') {
         // ZAMAN HESAPLA (2 dakika = 120 saniye hedef)
-        gameTime = (Date.now() - gameStartTime) / 1000;
+        gameTime = (Date.now() - gameStartTime - totalPausedTime) / 1000;
         const minutes = Math.floor(gameTime / 60);
         const seconds = Math.floor(gameTime % 60);
         const timeLeft = Math.max(0, 120 - gameTime); // 2 dakika geri sayım
         
         updateScoreBoard('boss', gameTime);
         
-        // Hız artışı - süre geçtikçe daha da hızlan (her 10 saniyede 0.2 artış)
-        if (Math.floor(gameTime) % 10 === 0 && gameTime > 0 && frameCount % Math.floor(60 / timeScale) === 0) {
-            speed = Math.min(speed + 0.2, 12); // Max hız 12, agresif artış
+        // Hız artışı - süre geçtikçe daha da hızlan (her 5 saniyede 0.3 artış)
+        const currentSpeedMinute = Math.floor(gameTime / 5);
+        if (currentSpeedMinute > lastSpeedUpTime && gameTime > 0) {
+            lastSpeedUpTime = currentSpeedMinute;
+            speed = Math.min(speed + 0.3, 18); // Max hız 18, agresif artış
         }
         
-        // Ekstra: Süre geçtikçe temel hız da artar (oyun başından beri)
-        const timeBonus = Math.floor(gameTime / 20) * 0.3; // Her 20sn'de +0.3
-        speed = Math.min(speed + timeBonus * 0.01, 12);
-
         // Fizik (deltaTime ile normalize edilmiş)
         if (dino.jumping) {
-            dino.vy += dino.gravity * timeScale;
-            dino.y += dino.vy * timeScale;
+            dino.vy += dino.gravity * currentTimeScale;
+            dino.y += dino.vy * currentTimeScale;
 
             if (dino.y >= groundY - 80) {
                 dino.y = groundY - 80;
@@ -442,13 +506,13 @@ function gameLoop(currentTime) {
          drawRealDino(ctx, dinoImage, frameCount, heartPowerCount, dino.x, dino.y + 40, 1, false);
 
         // KALP SPAWN - rastgele zamanlarda (max 3, boss'a kadar) - deltaTime ile
-        if (frameCount % Math.floor(600 / timeScale) === 0 && Math.random() < 0.7) {
+        if (frameCount % Math.floor(600 / currentTimeScale) === 0 && Math.random() < 0.7) {
             spawnHeart(gameMode, groundY, canvas.width, (type) => play8BitSound(type));
         }
 
         // KALP GUNCELLEME ve CARPISMA
         filterHearts(heart => {
-            heart.x -= speed * 0.8 * timeScale; // Kalpler engellerden biraz yavas
+            heart.x -= speed * 0.8 * currentTimeScale; // Kalpler engellerden biraz yavas
             
             // Kalp carpisma (dinazor aldi mi?)
             if (checkCollision({x: dino.x + 15, y: dino.y - 20, width: 50, height: 70}, 
@@ -470,7 +534,7 @@ function gameLoop(currentTime) {
         spawnObstacle(gameMode, gameTime, groundY, canvas.width, canvas.height, Math.random);
 
         filterObstacles(obs => {
-            obs.x -= speed * timeScale;
+            obs.x -= speed * currentTimeScale;
 
             // CUKUR KONTROLU - Dinazor cukurun icine dustu mu?
             if (obs.type === 'pit') {
@@ -478,6 +542,7 @@ function gameLoop(currentTime) {
                     if (heartPowerCount > 0) {
                         heartPowerCount--;
                         play8BitSound('hit');
+                        triggerScreenShake();
                         // Mesaj goster
                         const msg = document.createElement('div');
                         msg.textContent = `KALP KORUDU! (Kalan: ${heartPowerCount})`;
@@ -488,6 +553,7 @@ function gameLoop(currentTime) {
                         return false;
                     } else {
                         play8BitSound('hit');
+                        triggerScreenShake();
                         gameOver();
                     }
                 }
@@ -513,6 +579,13 @@ function gameLoop(currentTime) {
                         width: 45,         // Orijinal engel genişliği
                         height: 55         // Orijinal yükseklik + 5px tolerans
                     };
+                } else if (obs.type === 'turtle') {
+                    hitbox = {
+                        x: obs.x + 5,
+                        y: obs.y - 5,
+                        width: 60,
+                        height: 55
+                    };
                 } else {
                     // Çukur için normal hitbox
                     hitbox = obs;
@@ -523,6 +596,7 @@ function gameLoop(currentTime) {
                         // Kalp hakki varsa, sayaci azalt ve ENGELI SIL
                         heartPowerCount--;
                         play8BitSound('hit');
+                        triggerScreenShake();
                         // Ekranda gecici mesaj - SADECE hala hak varsa goster (son kalpte gosterme)
                         if (heartPowerCount > 0) {
                             const msg = document.createElement('div');
@@ -536,6 +610,7 @@ function gameLoop(currentTime) {
                     } else {
                         // Kalp hakki yoksa game over
                         play8BitSound('hit');
+                        triggerScreenShake();
                         gameOver();
                     }
                 }
@@ -547,6 +622,8 @@ function gameLoop(currentTime) {
                     drawCactus(ctx, obs.x, obs.y);
                 } else if (obs.type === 'pit') {
                     drawPit(ctx, obs.x, obs.y, obs.width, canvas.height);
+                } else if (obs.type === 'turtle') {
+                    drawTurtle(ctx, turtleImage, obs.x, obs.y, frameCount);
                 } else {
                     drawBird(ctx, obs.x, obs.y, frameCount);
                 }
@@ -580,8 +657,8 @@ function gameLoop(currentTime) {
         const targetX = Math.max(50, Math.min(canvas.width / 2, mouseX));
         const targetY = Math.max(50, Math.min(groundY - 80, mouseY));
         
-        dino.x += (targetX - dino.x) * 0.15 * timeScale;
-        dino.y += (targetY - dino.y) * 0.15 * timeScale;
+        dino.x += (targetX - dino.x) * 0.15 * currentTimeScale;
+        dino.y += (targetY - dino.y) * 0.15 * currentTimeScale;
         
         // Zemin kontrolü
         if (dino.y >= groundY - 80) {
@@ -590,27 +667,28 @@ function gameLoop(currentTime) {
         }
 
         // Boss hareketi - DİNOZORLA AYNI HİZADA (vurulabilir olsun)
-        boss.moveTimer += timeScale;
-        if (boss.moveTimer % 60 < timeScale) {
+        boss.moveTimer += currentTimeScale;
+        if (boss.moveTimer % 60 < currentTimeScale) {
             // Dinazorun hareket alanıyla aynı: groundY - 80 ile 100 arası
             boss.targetY = 100 + Math.random() * (groundY - 80);
         }
-        boss.y += (boss.targetY - boss.y) * 0.02 * timeScale;
+        boss.y += (boss.targetY - boss.y) * 0.02 * currentTimeScale;
         
         // Boss sınırları - asla çok yüksek uçmasın
         if (boss.y < 80) boss.y = 80;
         if (boss.y > groundY - 100) boss.y = groundY - 100;
 
         // Boss ateş
-        boss.shootTimer += timeScale;
-        if (boss.shootTimer % 90 < timeScale) {
+        boss.shootTimer += currentTimeScale;
+        if (boss.shootTimer >= 50) {
             bossShoot(dino, boss, bossBullets);
+            boss.shootTimer %= 50;
         }
 
         // Mermileri güncelle
         bullets = bullets.filter(bullet => {
-            bullet.x += bullet.vx * timeScale;
-            bullet.y += bullet.vy * timeScale;
+            bullet.x += bullet.vx * currentTimeScale;
+            bullet.y += bullet.vy * currentTimeScale;
 
             // Boss'a çarpma - GENİŞ HITBOX (kaçırma sorunu düzeltmesi)
             const bulletBox = bullet.type === 'special' 
@@ -636,11 +714,10 @@ function gameLoop(currentTime) {
                 
                 if (boss.health <= 0) {
                     // BOSS savaşı bitti - timer'ı durdur ve kaydet
-                    bossBattleDuration = Date.now() - bossBattleStartTime;
+                    bossBattleDuration = Date.now() - bossBattleStartTime - totalPausedTime;
                     saveBossTime(bossBattleDuration);
                     
                     gameMode = 'victory';
-                    gameRunning = false; // Oyunu tamamen durdur
                     stopBackgroundMusic(); // Arka plan müziğini durdur
                     // victoryMessage gizli - sadece canvas üzerindeki leaderboard gösterilecek
                     hideBossUI();
@@ -665,8 +742,8 @@ function gameLoop(currentTime) {
 
         // Boss mermilerini güncelle
         bossBullets = bossBullets.filter(bullet => {
-            bullet.x += bullet.vx * timeScale;
-            bullet.y += bullet.vy * timeScale;
+            bullet.x += bullet.vx * currentTimeScale;
+            bullet.y += bullet.vy * currentTimeScale;
 
             // Oyuncuya çarpma - INVINCIBILITY aktifse hasar alma
             const isInvincible = invincibilityEndTime && Date.now() < invincibilityEndTime;
@@ -738,19 +815,20 @@ function startBossBattle() {
     updateBossPosition(boss, canvas, groundY); // Canvas boyutuna göre boss pozisyonunu güncelle
     
     showBossUI(dino.health);
-    
-    // Secilen gore gore aciklama
+
+    // Bildirim div'i oluştur
     let powerDesc = '';
     if (bossChoice === 'fireball') {
         powerDesc = '\n🔥 ATEŞ TOPU: Q tuşu ile 10 can vur! (bir kere)';
     } else if (bossChoice === 'shield') {
         powerDesc = '\n🛡️ KALKAN: E tuşu ile 7 saniye dokunulmaz ol!';
     }
-    
-    setTimeout(() => {
-        alert(`BOSS SAVAŞI BAŞLADI! 🎉\n\n🖱️ FARE ile hareket et\n🖱️ SOL TIK ile ateş et (1 can)${powerDesc}\n\nSen: ${dino.health} Can | Boss Fil: 30 Can`);
-    }, 100);
-    
+    const notification = document.createElement('div');
+    notification.textContent = `BOSS SAVAŞI BAŞLADI! 🎉\n\n🖱️ FARE ile hareket et\n🖱️ SOL TIK ile ateş et (1 can)${powerDesc}\n\nSen: ${dino.health} Can | Boss Fil: 30 Can`;
+    notification.style.cssText = 'position:fixed;top:100px;left:50%;transform:translateX(-50%);font-size:22px;color:#FFD700;font-weight:bold;text-shadow:2px 2px 4px black;z-index:300;background:rgba(0,0,0,0.7);padding:20px 30px;border-radius:10px;white-space:pre-line;text-align:center;';
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 2000);
+
     requestAnimationFrame(gameLoop);
 }
 
@@ -760,7 +838,11 @@ function startGame() {
     gameMode = 'normal';
     gameStartTime = Date.now(); // ZAMAN BAŞLAT
     gameTime = 0;
-    speed = 5.5; // Güncel başlangıç hızı
+    speed = 7.5; // Daha hızlı başlangıç
+    lastSpeedUpTime = -1;
+    totalPausedTime = 0;
+    pauseStartTime = 0;
+    gamePaused = false;
     frameCount = 0;
     resetDeltaTime(); // DeltaTime'ı sıfırla
     resetObstacles(); // Engeller ve kalpler sıfırla
@@ -819,6 +901,15 @@ window.addEventListener('click', (e) => {
         return;
     }
     
+    // Tekrar Oyna butonu kontrolü (sadece victory modunda)
+    if (gameMode === 'victory' && restartBtn) {
+        const btn = restartBtn;
+        if (clickX >= btn.x && clickX <= btn.x + btn.w && clickY >= btn.y && clickY <= btn.y + btn.h) {
+            startGame();
+            return;
+        }
+    }
+    
     if (!gameRunning) {
          if (audioCtx.state === 'suspended') audioCtx.resume();
          startGame();
@@ -869,6 +960,11 @@ window.addEventListener('keydown', (e) => {
         e.preventDefault();
         if (gameRunning && gameMode !== 'victory' && gameMode !== 'gameover') {
             gamePaused = !gamePaused;
+            if (gamePaused) {
+                pauseStartTime = Date.now();
+            } else {
+                totalPausedTime += Date.now() - pauseStartTime;
+            }
             console.log(gamePaused ? 'Oyun duraklatıldı' : 'Oyun devam ediyor');
         }
         return;

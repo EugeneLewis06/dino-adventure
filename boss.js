@@ -53,8 +53,8 @@ function bossShoot(dino, boss, bossBullets) {
     bossBullets.push({
         x: boss.x - 60,
         y: boss.y - 20,
-        vx: Math.cos(angle) * 6,
-        vy: Math.sin(angle) * 6
+        vx: Math.cos(angle) * 9,
+        vy: Math.sin(angle) * 9
     });
 }
 

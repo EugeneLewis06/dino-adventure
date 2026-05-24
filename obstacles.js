@@ -1,10 +1,12 @@
 // obstacles.js - Engeller, Kalpler, Bulutlar ve Dağlar Modülü
+import { checkCollision } from './utils.js';
 
 // Diziler
 export let hearts = [];
 export let obstacles = [];
 export let clouds = [];
 export let mountains = [];
+export let meteors = [];
 
 // Kalp sistemi değişkenleri
 let heartsSpawned = 0;
@@ -299,6 +301,89 @@ export function spawnObstacle(gameMode, gameTime, groundY, canvasWidth, canvasHe
     return null;
 }
 
+// Meteor oluştur
+export function spawnMeteor(gameMode, canvasWidth, canvasHeight, dinoX = 0) {
+   if (gameMode !== 'normal') return null;
+   
+   // Meteor x pozisyonunu dinozordan en az 200 piksel uzakta ayarla
+   let minX, maxX;
+   if (dinoX < canvasWidth / 2) {
+       minX = dinoX + 200;
+       maxX = canvasWidth - 20;
+   } else {
+       minX = 0;
+       maxX = dinoX - 200;
+   }
+   // Geçersiz aralık durumunda canvas genelinde rastgele seç
+   if (minX >= maxX) {
+       minX = 0;
+       maxX = canvasWidth - 20;
+   }
+   
+   const meteor = {
+       x: Math.random() * (maxX - minX) + minX, // Rastgele x konumu (dinozordan uzak)
+       y: -20, // Ekranın üst kısmından başla
+       speed: 4 + Math.random() * 4, // 4-8 arası hız
+       size: 10 + Math.random() * 10, // 10-20 arası boyut
+       width: 0,
+       height: 0,
+       type: 'meteor',
+       passed: false
+   };
+   meteor.width = meteor.size * 2;
+   meteor.height = meteor.size * 2;
+   
+   meteors.push(meteor);
+   return meteor;
+}
+
+// Meteor çiz
+export function drawMeteor(ctx, meteor, meteorImage) {
+    // Kuyruk: turuncu-sarı alev kuyruğu (meteorun hareket yönünün tersine, yukarı)
+    ctx.fillStyle = '#ff4500';
+    ctx.beginPath();
+    ctx.moveTo(meteor.x, meteor.y);
+    ctx.lineTo(meteor.x - meteor.size * 1.5, meteor.y - meteor.size * 3);
+    ctx.lineTo(meteor.x + meteor.size * 1.5, meteor.y - meteor.size * 3);
+    ctx.closePath();
+    ctx.fill();
+
+    // Parlama efekti: yarı saydam beyaz daire
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.beginPath();
+    ctx.arc(meteor.x, meteor.y, meteor.size * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Gövde: parlak sarı daire
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(meteor.x, meteor.y, meteor.size, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Turuncu halka (gövde etrafında)
+    ctx.strokeStyle = '#ff4500';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(meteor.x, meteor.y, meteor.size + 3, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
+// Meteorları güncelle ve çiz
+export function updateMeteors(gameState, ctx) {
+    const { canvas, speed, currentTimeScale, meteorImage } = gameState;
+
+    meteors = meteors.filter(meteor => {
+        meteor.y += meteor.speed * currentTimeScale;
+        drawMeteor(ctx, meteor, meteorImage);
+        return meteor.y < canvas.height + 100;
+    });
+}
+
+// Meteor-dinozor çarpışma kontrolü
+export function checkMeteorCollision(dino, meteor) {
+    return checkCollision(dino, meteor);
+}
+
 // Tüm engelleri ve kalpleri güncelle ve çiz
 export function updateObstacles(gameState, ctx) {
     const { gameMode, gameTime, groundY, canvas, speed, currentTimeScale, frameCount, onSound } = gameState;
@@ -340,6 +425,7 @@ export function updateObstacles(gameState, ctx) {
 export function resetObstacles() {
     obstacles = [];
     hearts = [];
+    meteors = [];
     heartsSpawned = 0;
     lastObstacleTime = 0;
     nextGap = 1500;

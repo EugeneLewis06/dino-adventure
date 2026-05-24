@@ -2,7 +2,7 @@
 import { checkCollision } from './utils.js';
 import { play8BitSound, toggleSound, drawSoundIcon, startBackgroundMusic, stopBackgroundMusic, audioCtx } from './audio.js';
 import { scoreBoard, playerHealthDiv, bossHealthDiv, bossHealthBar, bossHealthFill, gameOverScreen, startMessage, victoryMessage, loadingMessage, hideLoadingMessage, updateScoreBoard, resetUI, showBossUI, updateBossHealth, updatePlayerHealth, hideBossUI, showGameOver, hideGameOver, showBossUpgradeScreen, updateDebugUI, removeDebugUI } from './ui.js';
-import { hearts, obstacles, clouds, mountains, createClouds, createMountains, spawnHeart, spawnObstacle, drawHeart, drawCactus, drawBird, drawPit, drawTurtle, updateObstacles, resetObstacles, resetCloudsAndMountains, filterHearts, filterObstacles, isDinoInPit } from './obstacles.js';
+import { hearts, obstacles, clouds, mountains, meteors, createClouds, createMountains, spawnHeart, spawnObstacle, spawnMeteor, updateMeteors, checkMeteorCollision, drawHeart, drawCactus, drawBird, drawPit, drawTurtle, updateObstacles, resetObstacles, resetCloudsAndMountains, filterHearts, filterObstacles, isDinoInPit } from './obstacles.js';
 import { dino, drawRealDino, jump, shoot, specialShoot } from './player.js';
 import { boss, drawElephant, bossShoot, updateBossPosition } from './boss.js';
 
@@ -20,6 +20,7 @@ canvas.height = window.innerHeight;
 const dinoImage = new Image();
 const elephantImage = new Image();
 const turtleImage = new Image();
+const meteorImage = new Image();
 let imagesLoaded = 0;
 
 // Chrome Dino - YENI SVG (kullanicinin gonderdigi)
@@ -27,6 +28,7 @@ dinoImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiI
 
 // Fil görseli
 elephantImage.src = 'elephant.png';
+meteorImage.src = 'meteor.png';
 turtleImage.src = 'turtle.png';
 
 dinoImage.onload = () => {
@@ -43,6 +45,15 @@ elephantImage.onload = () => {
     hideLoadingMessage();
 };
 elephantImage.onerror = () => {
+    imagesLoaded++;
+    hideLoadingMessage();
+};
+
+meteorImage.onload = () => {
+    imagesLoaded++;
+    hideLoadingMessage();
+};
+meteorImage.onerror = () => {
     imagesLoaded++;
     hideLoadingMessage();
 };
@@ -532,6 +543,11 @@ function gameLoop(currentTime) {
 
         // Engeller
         spawnObstacle(gameMode, gameTime, groundY, canvas.width, canvas.height, Math.random);
+        
+        // Meteorlar
+        if (frameCount % 120 === 0 && Math.random() < 0.3) {
+            spawnMeteor(gameMode, canvas.width, canvas.height, dino.x);
+        }
 
         filterObstacles(obs => {
             obs.x -= speed * currentTimeScale;
@@ -631,7 +647,35 @@ function gameLoop(currentTime) {
 
             return obs.x + obs.width > -100;
         });
-        
+
+        // Meteorları güncelle ve çiz
+        updateMeteors({ canvas, speed, currentTimeScale, meteorImage }, ctx);
+
+        // Meteor-dino çarpışma kontrolü
+        const filteredMeteors = meteors.filter(meteor => {
+            if (checkMeteorCollision(dino, meteor)) {
+                if (heartPowerCount > 0) {
+                    heartPowerCount--;
+                    play8BitSound('hit');
+                    triggerScreenShake();
+                    if (heartPowerCount > 0) {
+                        const msg = document.createElement('div');
+                        msg.textContent = `KALP KORUDU! (Kalan: ${heartPowerCount})`;
+                        msg.style.cssText = 'position:fixed;top:150px;left:50%;transform:translateX(-50%);font-size:28px;color:#ff1744;font-weight:bold;text-shadow:2px 2px 4px white;z-index:300;';
+                        document.body.appendChild(msg);
+                        setTimeout(() => msg.remove(), 1500);
+                    }
+                    return false; // Meteoru sil
+                } else {
+                    play8BitSound('hit');
+                    triggerScreenShake();
+                    gameOver();
+                }
+            }
+            return true;
+        });
+        meteors.splice(0, meteors.length, ...filteredMeteors);
+
         // UI GUNCELLEME - Sadece sure
         const currentMinutes = Math.floor(gameTime / 60);
         const currentSeconds = Math.floor(gameTime % 60);

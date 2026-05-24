@@ -339,33 +339,46 @@ export function spawnMeteor(gameMode, canvasWidth, canvasHeight, dinoX = 0) {
 
 // Meteor çiz
 export function drawMeteor(ctx, meteor, meteorImage) {
-    // Kuyruk: turuncu-sarı alev kuyruğu (meteorun hareket yönünün tersine, yukarı)
-    ctx.fillStyle = '#ff4500';
+    const { x, y, size } = meteor;
+    const kuyrukUzunlugu = size * 2.5;
+    const kuyrukGenisligi = size * 0.8;
+
+    ctx.save();
+    ctx.translate(x, y);
+    
+    const gradient = ctx.createLinearGradient(0, 0, 0, -kuyrukUzunlugu);
+    gradient.addColorStop(0, '#FF4500');
+    gradient.addColorStop(0.6, '#FFA500');
+    gradient.addColorStop(1, 'rgba(255, 165, 0, 0)');
+    
+    ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.moveTo(meteor.x, meteor.y);
-    ctx.lineTo(meteor.x - meteor.size * 1.5, meteor.y - meteor.size * 3);
-    ctx.lineTo(meteor.x + meteor.size * 1.5, meteor.y - meteor.size * 3);
+    ctx.moveTo(-kuyrukGenisligi / 2, 0);
+    ctx.lineTo(kuyrukGenisligi / 2, 0);
+    ctx.lineTo(0, -kuyrukUzunlugu);
     ctx.closePath();
     ctx.fill();
 
-    // Parlama efekti: yarı saydam beyaz daire
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillStyle = '#FFFACD';
     ctx.beginPath();
-    ctx.arc(meteor.x, meteor.y, meteor.size * 1.5, 0, Math.PI * 2);
+    ctx.arc(0, 0, size, 0, Math.PI * 2);
     ctx.fill();
 
-    // Gövde: parlak sarı daire
-    ctx.fillStyle = '#FFD700';
+    ctx.strokeStyle = '#FF4500';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(meteor.x, meteor.y, meteor.size, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Turuncu halka (gövde etrafında)
-    ctx.strokeStyle = '#ff4500';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(meteor.x, meteor.y, meteor.size + 3, 0, Math.PI * 2);
+    ctx.arc(0, 0, size, 0, Math.PI * 2);
     ctx.stroke();
+
+    const glowGradient = ctx.createRadialGradient(0, 0, size * 0.3, 0, 0, size * 1.5);
+    glowGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+    glowGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = glowGradient;
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
 }
 
 // Meteorları güncelle ve çiz

@@ -1,18 +1,11 @@
 # 🦖 Dino Adventure
 
-[![Game Status](https://img.shields.io/badge/status-active-brightgreen)](https://github.com/yourusername/dino-adventure)
+[![Game Status](https://img.shields.io/badge/status-active-brightgreen)](https://github.com/EugeneLewis06/dino-adventure)
 [![Made with HTML5](https://img.shields.io/badge/HTML5-orange?logo=html5)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![Made with JavaScript](https://img.shields.io/badge/JavaScript-yellow?logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Tests](https://img.shields.io/badge/tests-vitest-brightgreen)](https://vitest.dev)
 
 > An action-packed endless runner game with boss battles, power-ups, and epic 8-bit soundtrack! 🎮
-
----
-
-## 📸 Screenshot
-
-![Game Screenshot](./screenshot-placeholder.png)
-
-*Add your game screenshot here! Replace `screenshot-placeholder.png` with an actual image.*
 
 ---
 
@@ -21,9 +14,10 @@
 ### Normal Mode (Runner)
 - **🖱️ Click / Space / ↑ Arrow** - Jump
 - **🖱️ Double Click** - Double Jump (in mid-air)
-- **⏸️ P Key** - Pause/Resume game (works in all modes!)
-- **⏱️ Survive** - Avoid cacti, birds, and pits for 2 minutes
+- **⏸️ P Key** - Pause/Resume game
+- **⏱️ Survive** - Avoid cacti, birds, pits, and turtles for 2 minutes
 - **❤️ Collect Hearts** - Gain extra lives to survive collisions
+- **⚡ Collect Lightning** - 3 seconds of speed boost + invincibility
 
 ### Boss Battle Mode
 After surviving for 2 minutes, face the mighty **Elephant Boss**! 🐘
@@ -31,12 +25,20 @@ After surviving for 2 minutes, face the mighty **Elephant Boss**! 🐘
 - **🖱️ Mouse Move** - Move your dino in 2D space
 - **🖱️ Left Click** - Shoot (1 damage per hit)
 - **🔥 Q Key** - Fireball Attack (10 damage - one time use)
-- **🛡️ E Key** - Shield (7 seconds invincibility)
+- **🛡️ E Key** - Shield (7 seconds invincibility - one time use)
+- **⏸️ P Key** - Pause/Resume game
 
 ### Boss Choice System
 Before the boss fight, choose your power:
 - **🔥 Fireball** - Massive 10 damage attack (use Q)
 - **🛡️ Shield** - Temporary invincibility (use E)
+
+### Shortcuts
+| Key | Action |
+|-----|--------|
+| **F3** | Toggle debug overlay (FPS & error info) |
+| **F6** | Toggle fullscreen |
+| **H** | Cheat: reduce boss battle timer from 120s to 60s |
 
 ---
 
@@ -45,13 +47,19 @@ Before the boss fight, choose your power:
 | Feature | Description |
 |---------|-------------|
 | 🏃 **Endless Runner** | Procedurally generated obstacles with increasing difficulty |
-| 🐘 **Boss Battle** | Epic 2D shooter mechanic against the Elephant Boss |
-| 🎵 **8-Bit Soundtrack** | Retro-style synthesized audio effects and music |
+| 🐘 **Boss Battle** | Epic 2D shooter mechanic against the Elephant Boss with homing projectiles |
+| ⚡ **Lightning Power-up** | Speed boost + temporary invincibility when collected |
+| 🌵 **4 Obstacle Types** | Cacti, birds, pits, and bouncing turtles — with progressive unlock times |
+| 💓 **Heart System** | Collect up to 3 hearts to absorb fatal hits |
+| 🎵 **8-Bit Soundtrack** | Retro-style synthesized audio effects and music via Web Audio API |
+| 📳 **Screen Shake** | Visual feedback on collisions and boss hits |
 | 🏆 **Leaderboard** | Top 3 boss battle times saved to LocalStorage |
 | 📱 **Responsive** | Full-screen canvas that adapts to any screen size |
 | 🔊 **Sound Toggle** | Click the speaker icon in top-right to mute/unmute |
 | ⏸️ **Pause System** | Press P anytime to pause/resume the game |
 | ⏱️ **DeltaTime System** | Consistent game speed across different refresh rates |
+| 🧪 **Test Suite** | 7 test files covering game logic, audio, boss, player, obstacles, and UI |
+| 🛠️ **ESLint + Prettier** | Code quality and formatting tools configured |
 
 ---
 
@@ -60,16 +68,19 @@ Before the boss fight, choose your power:
 | Technology | Purpose |
 |------------|---------|
 | **Canvas API** 🎨 | 2D rendering for all game graphics, animations, and visual effects |
-| **Web Audio API** 🔊 | 8-bit sound synthesis for jump, shoot, hit, and victory sounds |
+| **Web Audio API** 🔊 | 8-bit sound synthesis for jump, shoot, hit, victory, and lightning sounds |
 | **LocalStorage** 💾 | Persisting top boss battle completion times across sessions |
 | **requestAnimationFrame** 🔄 | Smooth 60 FPS game loop with deltaTime normalization |
-| **ES6+ JavaScript** 📜 | Modern JavaScript features for clean, modular code |
+| **ES6 Modules** 📜 | Modular JavaScript architecture with clean separation of concerns |
+| **Vitest** 🧪 | Unit testing framework for game logic and mechanics |
+| **ESLint** 🔍 | Static code analysis and linting |
+| **Prettier** ✨ | Consistent code formatting |
 
 ---
 
 ## 🚀 How to Run
 
-### Option 1: Direct Browser (Easiest)
+### Option 1: Direct Browser
 Simply open the `index.html` file in any modern web browser:
 
 ```bash
@@ -92,22 +103,24 @@ python -m http.server 8000
 
 # Using Node.js (http-server)
 npx http-server -p 8000
-
-# Using PHP
-php -S localhost:8000
 ```
 
 Then open: `http://localhost:8000`
 
-### Option 3: GitHub Pages 🌐
-Deploy to GitHub Pages for instant online access:
+### Option 3: Running Tests
 
-1. Fork this repository
-2. Go to Settings → Pages
-3. Select "Deploy from a branch" → "main" → "/ (root)"
-4. Visit: `https://yourusername.github.io/dino-adventure`
+```bash
+npm install
+npm test          # Run all tests once
+npm run test:watch # Run tests in watch mode
+```
 
-**Live Demo:** [Play Now!](https://yourusername.github.io/dino-adventure) *(Replace with your actual link)*
+### Option 4: Linting & Formatting
+
+```bash
+npm run lint      # Check code with ESLint
+npm run format    # Auto-format code with Prettier
+```
 
 ---
 
@@ -115,29 +128,41 @@ Deploy to GitHub Pages for instant online access:
 
 ```
 dino-adventure/
-├── 📄 index.html          # Main HTML file
-├── 📜 main.js             # Game logic & engine (all-in-one)
+├── 📄 index.html          # Main HTML file with canvas and UI overlays
+├── 📜 main.js             # Core game engine, game loop, event handling
+├── 🎮 player.js           # Dino object, jump, shoot, special attack
+├── 👾 boss.js             # Boss object, AI, homing projectiles
+├── 🌍 obstacles.js        # Cactus, bird, pit, turtle, hearts, lightning
+├── 🖥️ ui.js               # Score board, health bars, overlays, leaderboard
+├── 🎵 audio.js            # Web Audio API synthesis, sound effects, music
+├── 🧰 utils.js            # Collision detection utility
 ├── 🎨 style.css           # Styling & animations
+├── 🐘 fil1.png            # Elephant boss image
+├── 🐢 turtle.png          # Turtle obstacle image
+├── 🧪 player.test.js      # Jump, shoot, specialShoot tests
+├── 🧪 boss.test.js        # Boss shooting and positioning tests
+├── 🧪 obstacles.test.js   # Pit detection, obstacle spawn tests
+├── 🧪 audio.test.js       # Sound playback and toggle tests
+├── 🧪 gameState.test.js   # Game state transition tests
+├── 🧪 ui.test.js          # Leaderboard and localStorage tests
+├── 🧪 utils.test.js       # Collision detection tests
+├── 🧪 vitest.setup.js     # Test environment mocks (Canvas, Audio, DOM)
+├── ⚙️ vitest.config.js    # Vitest configuration
+├── ⚙️ eslint.config.js    # ESLint flat configuration
+├── .prettierrc            # Prettier formatting rules
+├── .prettierignore        # Files excluded from formatting
 └── 📖 README.md           # This file
 ```
 
 ---
 
-## 🎵 Audio Controls
-
-- 🔊 **Click the speaker icon** (top-right corner) to toggle sound
-- 🎶 Background music plays during normal mode
-- 🔊 Sound effects for: Jump, Shoot, Hit, Victory, Game Over
-
----
-
 ## 🏆 Boss Battle Leaderboard
 
-Your best boss battle times are automatically saved to your browser's LocalStorage! 
+Your best boss battle times are automatically saved to your browser's LocalStorage!
 
 Top players are displayed on the victory screen with medals:
 - 🥇 Gold - 1st place
-- 🥈 Silver - 2nd place  
+- 🥈 Silver - 2nd place
 - 🥉 Bronze - 3rd place
 
 ---
@@ -147,40 +172,14 @@ Top players are displayed on the victory screen with medals:
 | Issue | Solution |
 |-------|----------|
 | No sound 🔇 | Click anywhere on the page first (browser autoplay policy) |
-| Game runs too fast/slow | DeltaTime system normalizes speed; check your monitor refresh rate |
+| Game runs too fast/slow | DeltaTime system normalizes speed; refresh rate shouldn't matter |
 | Canvas not responsive | Resize your browser window - game adapts automatically |
-
----
-
-## 🔮 Future Enhancements
-
-- [ ] Mobile touch controls
-- [ ] Multiple boss types
-- [ ] Power-up items during runner mode
-- [ ] Multiplayer mode
-- [ ] Achievement system
 
 ---
 
 ## 📜 License
 
-MIT License - Feel free to use, modify, and distribute! 🎉
-
----
-
-## 🙏 Acknowledgments
-
-- Inspired by the classic Chrome Dino game 🦕
-- 8-bit audio design inspired by retro NES games 🎮
-- Built with love and lots of ☕
-
----
-
-## 📝 Development Notes
-
-**This project was developed using the Vibe Coding approach with Windsurf.** 🌊
-
-Vibe Coding is an AI-assisted development methodology where the developer and AI collaborate in a conversational flow, iterating rapidly to build functional software. This game was created through iterative prompt engineering and rapid prototyping using the Windsurf IDE.
+MIT License - Feel free to use, modify, and distribute!
 
 ---
 
@@ -188,6 +187,6 @@ Vibe Coding is an AI-assisted development methodology where the developer and AI
 
 **🎮 Happy Gaming! 🦖**
 
-*[Made with 💚 and JavaScript]*
+*[Made with JavaScript and Web APIs]*
 
 </div>

@@ -1,8 +1,8 @@
 # Test Raporu
 
-**Tarih:** 2026-06-07 13:22  
+**Tarih:** 2026-06-07 13:30  
 **Dal:** `main`  
-**Commit:** `4f89439`  
+**Commit:** `4c1ff5a`  
 **CI:** GitHub Actions  
 
 ---
@@ -12,8 +12,8 @@
 | Test Tipi | Geçti | Kaldı | Toplam |
 |-----------|-------|-------|--------|
 | Vitest (birim) | 34 | 0 | 34 |
-| Playwright (görsel) | 12 | 1 | 13 |
-| **Genel** | **46** | **1** | **47** |
+| Playwright (görsel) | 16 | 1 | 17 |
+| **Genel** | **50** | **1** | **51** |
 
 ---
 
@@ -33,7 +33,7 @@
 
 ## Playwright — Görsel Regresyon Testleri
 
-Toplam: 12 geçti, 1 kaldı
+Toplam: 16 geçti, 1 kaldı
 
 **Ortam:** Headless Chromium 800×600, PRNG seed=42  
 **Tolerans:** %2 piksel farkı, eşik 0.5  

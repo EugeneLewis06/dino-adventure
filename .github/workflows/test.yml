@@ -35,9 +35,8 @@ jobs:
       # ── VITEST ──────────────────────────────────────────────────────────
       - name: 🧪 Vitest birim testleri
         id: vitest
-        shell: bash
         run: |
-          npx vitest run --reporter=json > vitest-output.json 2> vitest-error.txt
+          npx vitest run --reporter=json > vitest-output.json 2>&1
           echo "exit_code=$?" >> $GITHUB_OUTPUT
         continue-on-error: true
 

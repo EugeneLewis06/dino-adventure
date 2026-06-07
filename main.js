@@ -825,6 +825,10 @@ if (typeof window !== 'undefined') {
     getTopBossTimes,
     dino,
     boss,
+    checkCollision,
+    isDinoInPit,
+    obstacles: () => obstacles,
+    hearts: () => hearts,
   };
 }
 

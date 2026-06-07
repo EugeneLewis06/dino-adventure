@@ -44,7 +44,7 @@ jobs:
         id: playwright
         shell: bash
         run: |
-          npx playwright test --reporter=list 2>&1 | tee playwright-output.txt
+          npx playwright test --reporter=list --update-snapshots 2>&1 | tee playwright-output.txt
           echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
         continue-on-error: true
 
@@ -60,6 +60,6 @@ jobs:
         with:
           commit_message: 'test(ci): test sonuçları güncellendi [skip ci]'
           commit_options: '--no-verify'
-          file_pattern: 'test-reports/*.md'
+          file_pattern: 'test-reports/*.md tests/**/*.png'
           commit_user_name: 'github-actions[bot]'
           commit_user_email: 'github-actions[bot]@users.noreply.github.com'

@@ -1,16 +1,23 @@
 {
   "name": "templates23",
   "version": "1.0.0",
+  "type": "module",
   "description": "[![Game Status](https://img.shields.io/badge/status-active-brightgreen)](https://github.com/yourusername/dino-adventure) [![Made with HTML5](https://img.shields.io/badge/HTML5-orange?logo=html5)](https://developer.mozilla.org/en-US/docs/Web/HTML) [![Made with JavaScript](https://img.shields.io/badge/JavaScript-yellow?logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)",
   "main": "main.js",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.4.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.3",
     "vitest": "^3.2.4"
   }
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { boss, bossShoot } from './boss.js';
+import { boss, bossShoot, updateBossPosition } from './boss.js';
 
 describe('bossShoot', () => {
   it('bossBullets dizisine bir mermi eklemeli ve vx/vy değerleri açıya göre doğru olmalı', () => {
@@ -26,5 +26,19 @@ describe('bossShoot', () => {
 
     expect(bullet.vx).toBeCloseTo(expectedVx, 10);
     expect(bullet.vy).toBeCloseTo(expectedVy, 10);
+  });
+});
+
+describe('updateBossPosition', () => {
+  it('boss.x canvas.width - 200, boss.y groundY - 120, boss.targetY groundY - 120 olmalı', () => {
+    const bossObj = { x: 0, y: 0, targetY: 0 };
+    const canvas = { width: 1920, height: 1080 };
+    const groundY = 980;
+
+    updateBossPosition(bossObj, canvas, groundY);
+
+    expect(bossObj.x).toBe(1720);
+    expect(bossObj.y).toBe(860);
+    expect(bossObj.targetY).toBe(860);
   });
 });

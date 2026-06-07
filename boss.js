@@ -12,21 +12,12 @@ const boss = {
 };
 
 // Gerçekçi fil çiz (Boss) - Görsel veya SVG
-function drawElephant(ctx, elephantImage, imagesLoaded, frameCount, x, y) {
+function drawElephant(ctx, elephantImage, frameCount, x, y) {
     ctx.save();
     ctx.translate(x, y);
 
-    // Görsel yüklendiyse kullan
-    if (imagesLoaded === 2 && elephantImage.complete) {
+    if (elephantImage.complete && elephantImage.naturalWidth > 0) {
         ctx.drawImage(elephantImage, -60, -50, 120, 100);
-        
-        // Hareket animasyonu
-        const legOffset = Math.sin(frameCount * 0.05) * 2;
-        ctx.fillStyle = '#6a6a6a';
-        ctx.fillRect(-40 + legOffset, 45, 12, 20);
-        ctx.fillRect(-15 - legOffset, 45, 12, 20);
-        ctx.fillRect(15 + legOffset, 45, 12, 20);
-        ctx.fillRect(40 - legOffset, 45, 12, 20);
     } else {
         // Yedek SVG çizim
         ctx.fillStyle = '#8b7d6b';

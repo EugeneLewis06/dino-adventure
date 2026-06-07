@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { dino, jump, shoot } from './player.js';
+import { dino, jump, shoot, specialShoot } from './player.js';
 
 describe('jump', () => {
   const GAME_MODE = 'normal';
@@ -83,5 +83,32 @@ describe('shoot', () => {
     // Pozisyon dino'ya gore dogru hesaplanmali
     expect(bullets[0].x).toBe(dino.x + 35);
     expect(bullets[0].y).toBe(dino.y - 30);
+  });
+});
+
+describe('specialShoot', () => {
+  const mockSound = () => {};
+
+  it("gameMode 'boss' değilse mermi eklenmemeli", () => {
+    const bullets = [];
+    const result = specialShoot(dino, 'normal', bullets, false, mockSound);
+    expect(bullets).toHaveLength(0);
+    expect(result.updatedSpecialAttackUsed).toBe(false);
+  });
+
+  it("gameMode 'boss' iken ve specialAttackUsed false iken mermi eklenmeli ve updatedSpecialAttackUsed true dönmeli", () => {
+    const bullets = [];
+    const result = specialShoot(dino, 'boss', bullets, false, mockSound);
+    expect(bullets).toHaveLength(1);
+    expect(bullets[0].type).toBe('special');
+    expect(bullets[0].vx).toBe(5);
+    expect(result.updatedSpecialAttackUsed).toBe(true);
+  });
+
+  it('specialAttackUsed zaten true ise mermi eklenmemeli', () => {
+    const bullets = [];
+    const result = specialShoot(dino, 'boss', bullets, true, mockSound);
+    expect(bullets).toHaveLength(0);
+    expect(result.updatedSpecialAttackUsed).toBe(true);
   });
 });

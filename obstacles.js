@@ -6,7 +6,7 @@ export let hearts = [];
 export let obstacles = [];
 export let clouds = [];
 export let mountains = [];
-export let meteors = [];
+export let lightnings = [];
 
 // Kalp sistemi değişkenleri
 let heartsSpawned = 0;
@@ -219,6 +219,73 @@ export function drawHeart(ctx, heart, frameCount) {
     ctx.restore();
 }
 
+// Yıldırım spawn
+export function spawnLightning(gameMode, groundY, canvasWidth) {
+    if (gameMode !== 'normal') return null;
+    
+    const minY = groundY - 150;
+    const maxY = groundY - 50;
+    
+    const lightning = {
+        x: canvasWidth + 50,
+        y: Math.random() * (maxY - minY) + minY,
+        width: 30,
+        height: 30
+    };
+    
+    lightnings.push(lightning);
+    return lightning;
+}
+
+// Yıldırım çiz
+export function drawLightning(ctx, lightning, frameCount) {
+    const x = lightning.x;
+    const y = lightning.y;
+    const size = 15;
+    
+    ctx.save();
+    const floatY = Math.sin(frameCount * 0.1 + (lightning.x || 0) * 0.01) * 3;
+    ctx.translate(x, y + floatY);
+    
+    // Dış parıltı
+    ctx.shadowColor = '#FFD700';
+    ctx.shadowBlur = 10;
+    
+    // Ana şimşek gövdesi - sarı zigzag
+    ctx.fillStyle = '#FFD700';
+    ctx.strokeStyle = '#FFA500';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, -size);
+    ctx.lineTo(size * 0.3, -size * 0.3);
+    ctx.lineTo(-size * 0.2, 0);
+    ctx.lineTo(size * 0.4, size * 0.3);
+    ctx.lineTo(0, size);
+    ctx.lineTo(-size * 0.3, size * 0.3);
+    ctx.lineTo(size * 0.2, 0);
+    ctx.lineTo(-size * 0.4, -size * 0.3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    
+    // İç parlak çekirdek - beyaz
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.moveTo(0, -size * 0.7);
+    ctx.lineTo(size * 0.15, -size * 0.2);
+    ctx.lineTo(-size * 0.1, 0);
+    ctx.lineTo(size * 0.2, size * 0.2);
+    ctx.lineTo(0, size * 0.7);
+    ctx.lineTo(-size * 0.15, size * 0.2);
+    ctx.lineTo(size * 0.1, 0);
+    ctx.lineTo(-size * 0.2, -size * 0.2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+}
+
 // Kalp spawn
 export function spawnHeart(gameMode, groundY, canvasWidth, onSound) {
     if (heartsSpawned >= maxHearts || gameMode !== 'normal') return null;
@@ -301,102 +368,6 @@ export function spawnObstacle(gameMode, gameTime, groundY, canvasWidth, canvasHe
     return null;
 }
 
-// Meteor oluştur
-export function spawnMeteor(gameMode, canvasWidth, canvasHeight, dinoX = 0) {
-   if (gameMode !== 'normal') return null;
-   
-   // Meteor x pozisyonunu dinozordan en az 200 piksel uzakta ayarla
-   let minX, maxX;
-   if (dinoX < canvasWidth / 2) {
-       minX = dinoX + 200;
-       maxX = canvasWidth - 20;
-   } else {
-       minX = 0;
-       maxX = dinoX - 200;
-   }
-   // Geçersiz aralık durumunda canvas genelinde rastgele seç
-   if (minX >= maxX) {
-       minX = 0;
-       maxX = canvasWidth - 20;
-   }
-   
-   const meteor = {
-       x: Math.random() * (maxX - minX) + minX, // Rastgele x konumu (dinozordan uzak)
-       y: -20, // Ekranın üst kısmından başla
-       speed: 4 + Math.random() * 4, // 4-8 arası hız
-       size: 10 + Math.random() * 10, // 10-20 arası boyut
-       width: 0,
-       height: 0,
-       type: 'meteor',
-       passed: false
-   };
-   meteor.width = meteor.size * 2;
-   meteor.height = meteor.size * 2;
-   
-   meteors.push(meteor);
-   return meteor;
-}
-
-// Meteor çiz
-export function drawMeteor(ctx, meteor, meteorImage) {
-    const { x, y, size } = meteor;
-    const kuyrukUzunlugu = size * 2.5;
-    const kuyrukGenisligi = size * 0.8;
-
-    ctx.save();
-    ctx.translate(x, y);
-    
-    const gradient = ctx.createLinearGradient(0, 0, 0, -kuyrukUzunlugu);
-    gradient.addColorStop(0, '#FF4500');
-    gradient.addColorStop(0.6, '#FFA500');
-    gradient.addColorStop(1, 'rgba(255, 165, 0, 0)');
-    
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.moveTo(-kuyrukGenisligi / 2, 0);
-    ctx.lineTo(kuyrukGenisligi / 2, 0);
-    ctx.lineTo(0, -kuyrukUzunlugu);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = '#FFFACD';
-    ctx.beginPath();
-    ctx.arc(0, 0, size, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.strokeStyle = '#FF4500';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, 0, size, 0, Math.PI * 2);
-    ctx.stroke();
-
-    const glowGradient = ctx.createRadialGradient(0, 0, size * 0.3, 0, 0, size * 1.5);
-    glowGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-    glowGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    ctx.fillStyle = glowGradient;
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 1.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-}
-
-// Meteorları güncelle ve çiz
-export function updateMeteors(gameState, ctx) {
-    const { canvas, speed, currentTimeScale, meteorImage } = gameState;
-
-    meteors = meteors.filter(meteor => {
-        meteor.y += meteor.speed * currentTimeScale;
-        drawMeteor(ctx, meteor, meteorImage);
-        return meteor.y < canvas.height + 100;
-    });
-}
-
-// Meteor-dinozor çarpışma kontrolü
-export function checkMeteorCollision(dino, meteor) {
-    return checkCollision(dino, meteor);
-}
-
 // Tüm engelleri ve kalpleri güncelle ve çiz
 export function updateObstacles(gameState, ctx) {
     const { gameMode, gameTime, groundY, canvas, speed, currentTimeScale, frameCount, onSound } = gameState;
@@ -438,7 +409,7 @@ export function updateObstacles(gameState, ctx) {
 export function resetObstacles() {
     obstacles = [];
     hearts = [];
-    meteors = [];
+    lightnings = [];
     heartsSpawned = 0;
     lastObstacleTime = 0;
     nextGap = 1500;

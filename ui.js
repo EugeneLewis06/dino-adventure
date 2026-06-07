@@ -18,17 +18,19 @@ export function hideLoadingMessage() {
 }
 
 // Skor tablosunu güncelle
-export function updateScoreBoard(gameMode, gameTime) {
+export function updateScoreBoard(gameMode, gameTime, targetTime = 120) {
+    const targetMinutes = Math.floor(targetTime / 60);
+    const targetStr = `${targetMinutes}:${String(targetTime % 60).padStart(2, '0')}`;
     if (gameMode === 'normal') {
         const minutes = Math.floor(gameTime / 60);
         const seconds = Math.floor(gameTime % 60);
         const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        scoreBoard.textContent = `SURE: ${timeStr} / 2:00`;
+        scoreBoard.textContent = `SURE: ${timeStr} / ${targetStr}`;
     } else if (gameMode === 'boss') {
         const minutes = Math.floor(gameTime / 60);
         const seconds = Math.floor(gameTime % 60);
         const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        scoreBoard.textContent = `SÜRE: ${timeStr} / 2:00 | Hedef: Boss`;
+        scoreBoard.textContent = `SÜRE: ${timeStr} / ${targetStr} | Hedef: Boss`;
         scoreBoard.style.fontSize = '20px';
     }
 }

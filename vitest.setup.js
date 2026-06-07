@@ -74,14 +74,61 @@ const mockDocument = {
 };
 
 globalThis.window = {
-  AudioContext: class MockAudioContext {},
-  webkitAudioContext: class MockAudioContext {},
+  AudioContext: class MockAudioContext {
+    constructor() {
+      this.destination = {};
+      this.currentTime = 0;
+      this.state = 'running';
+    }
+    createOscillator() {
+      return {
+        type: 'sine',
+        frequency: { value: 0, setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+        connect: vi.fn(),
+        start: vi.fn(),
+        stop: vi.fn(),
+        disconnect: vi.fn(),
+      };
+    }
+    createGain() {
+      return {
+        gain: { value: 1, setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+      };
+    }
+  },
+  webkitAudioContext: class MockAudioContext {
+    constructor() {
+      this.destination = {};
+      this.currentTime = 0;
+      this.state = 'running';
+    }
+    createOscillator() {
+      return {
+        type: 'sine',
+        frequency: { value: 0, setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+        connect: vi.fn(),
+        start: vi.fn(),
+        stop: vi.fn(),
+        disconnect: vi.fn(),
+      };
+    }
+    createGain() {
+      return {
+        gain: { value: 1, setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+      };
+    }
+  },
   innerWidth: 1920,
   innerHeight: 1080,
   addEventListener: vi.fn(),
   requestAnimationFrame: vi.fn(),
   performance: { now: vi.fn(() => Date.now()) },
 };
+globalThis.requestAnimationFrame = vi.fn();
 globalThis.document = mockDocument;
 
 // ── localStorage mock ───────────────────────────────────────────────────────

@@ -102,7 +102,36 @@ export function play8BitSound(type) {
             oscillator.start(audioCtx.currentTime);
             oscillator.stop(audioCtx.currentTime + 0.15);
             break;
+        case 'lightning':
+            playLightningSound();
+            break;
     }
+}
+
+// Yıldırım güçlendirme ses efekti - 3 saniyelik hızlı tempolu melodi
+export function playLightningSound() {
+    if (!soundEnabled) return;
+    
+    const melody = [
+        523, 659, 784, 1047, 784, 659, 523, 659,
+        784, 1047, 1319, 1047, 784, 659, 523, 392,
+        523, 659, 784, 1047, 1319, 1568, 1319, 1047
+    ];
+    const noteDuration = 125; // Her nota 125ms → 24 nota = 3 saniye
+    
+    melody.forEach((freq, i) => {
+        const startTime = audioCtx.currentTime + (i * noteDuration) / 1000;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'square';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.15, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + noteDuration / 1000 * 0.9);
+        osc.start(startTime);
+        osc.stop(startTime + noteDuration / 1000);
+    });
 }
 
 export function toggleSound(gameRunning, gameMode) {

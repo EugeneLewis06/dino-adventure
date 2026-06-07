@@ -1,17 +1,15 @@
-// Test raporu oluşturucu — Vitest + Playwright çıktılarını işler
+// Test raporu oluşturucu — Vitest JSON + Playwright list çıktılarını işler
 const fs = require('fs');
 const path = require('path');
 
 const reportDir = path.resolve(__dirname, '..', 'test-reports');
 if (!fs.existsSync(reportDir)) fs.mkdirSync(reportDir, { recursive: true });
 
-// Vitest çıktısını oku
-const vitestRaw = safeRead('vitest-output.txt');
-const vitest = parseVitest(vitestRaw);
+// Vitest JSON çıktısını oku
+const vitest = parseVitestJSON(safeRead('vitest-output.json'));
 
-// Playwright çıktısını oku
-const pwRaw = safeRead('playwright-output.txt');
-const pw = parsePlaywright(pwRaw);
+// Playwright list çıktısını oku
+const pw = parsePlaywright(safeRead('playwright-output.txt'));
 
 const totalPassed = vitest.passed + pw.passed;
 const totalFailed = vitest.failed + pw.failed;
@@ -67,59 +65,48 @@ function safeRead(filename) {
   try { return fs.readFileSync(filename, 'utf-8'); } catch { return ''; }
 }
 
-function parseVitest(output) {
-  if (!output) return { passed: 0, failed: 0, table: '*Test çıktısı bulunamadı*' };
+// Vitest JSON reporter çıktısını parse et
+function parseVitestJSON(raw) {
+  if (!raw) return { passed: 0, failed: 0, table: '*Test çıktısı bulunamadı*' };
 
-  // Vitest verbose çıktısından geçen/kalan sayısını çıkar
-  const testFilesMatch = output.match(/Test Files\s+(\d+)\s+passed.*?(\d+)\s+failed/i);
-  const testsMatch = output.match(/Tests\s+(\d+)\s+passed.*?(\d+)\s+failed/i);
+  try {
+    const data = JSON.parse(raw);
+    const files = (data.testResults || []).filter(f => f.assertionResults);
 
-  const filesPassed = testFilesMatch ? parseInt(testFilesMatch[1]) : 0;
-  const filesFailed = testFilesMatch ? parseInt(testFilesMatch[2]) : 0;
+    const fileResults = files.map(f => {
+      const assertions = f.assertionResults || [];
+      const passed = assertions.filter(a => a.status === 'passed').length;
+      const failed = assertions.filter(a => a.status === 'failed').length;
+      const name = f.name ? path.basename(f.name) : '?';
+      return { name, passed, failed };
+    });
 
-  // Test dosyalarını gruplandır
-  const fileResults = [];
-  const lines = output.split('\n');
-  let currentFile = null;
+    const totalPassed = fileResults.reduce((s, f) => s + f.passed, 0);
+    const totalFailed = fileResults.reduce((s, f) => s + f.failed, 0);
 
-  for (const line of lines) {
-    const fileMatch = line.match(/^✓\s+(.+?\.test\.js)\s+>/);
-    const fileFailMatch = line.match(/^×\s+(.+?\.test\.js)\s+>/);
-    if (fileMatch || fileFailMatch) {
-      const filename = (fileMatch || fileFailMatch)[1].replace(/.*[\\/]/, '');
-      if (!currentFile || currentFile.name !== filename) {
-        if (currentFile) fileResults.push(currentFile);
-        currentFile = { name: filename, passed: 0, failed: 0 };
-      }
-      if (fileMatch) currentFile.passed++;
-      if (fileFailMatch) currentFile.failed++;
-    }
-  }
-  if (currentFile) fileResults.push(currentFile);
+    const table = fileResults.length > 0
+      ? [
+          '| Dosya | Geçti | Kaldı |',
+          '|-------|-------|-------|',
+          ...fileResults.map(f =>
+            `| ${f.name} | ${f.passed} ✅ | ${f.failed} |`
+          ),
+        ].join('\n')
+      : '*Çıktı parse edilemedi*';
 
-  // Eğer detaylı parse çalışmazsa özet sayıları kullan
-  if (fileResults.length === 0) {
-    const allPassed = testsMatch ? parseInt(testsMatch[1]) : 0;
-    const allFailed = testsMatch ? parseInt(testsMatch[2]) : 0;
+    return { passed: totalPassed, failed: totalFailed, table };
+  } catch {
+    // JSON parse başarısız — ham çıktıdan çıkarmaya çalış
+    const passed = (raw.match(/"status"\s*:\s*"passed"/g) || []).length;
+    const failed = (raw.match(/"status"\s*:\s*"failed"/g) || []).length;
     return {
-      passed: allPassed,
-      failed: allFailed,
-      table: `Toplam: ${allPassed} geçti, ${allFailed} kaldı`,
+      passed, failed,
+      table: `Toplam: ${passed} geçti, ${failed} kaldı (ham JSON'dan)`,
     };
   }
-
-  const totalPassed = fileResults.reduce((s, f) => s + f.passed, 0);
-  const totalFailed = fileResults.reduce((s, f) => s + f.failed, 0);
-
-  const table = [
-    '| Dosya | Geçti | Kaldı |',
-    '|-------|-------|-------|',
-    ...fileResults.map(f => `| ${f.name} | ${f.passed} ✅ | ${f.failed} |`),
-  ].join('\n');
-
-  return { passed: totalPassed, failed: totalFailed, table };
 }
 
+// Playwright list reporter çıktısını parse et
 function parsePlaywright(output) {
   if (!output) return { passed: 0, failed: 0, table: '*Test çıktısı bulunamadı*' };
 
@@ -127,7 +114,6 @@ function parsePlaywright(output) {
   const lines = output.split('\n');
 
   for (const line of lines) {
-    // "ok 1 ... › test adı (1.2s)" veya "x 1 ... › test adı"
     const okMatch = line.match(/^\s*ok\s+\d+\s+.+?›\s+(.+?)\s+\(([\d.]+)s\)/);
     const failMatch = line.match(/^\s*x\s+\d+\s+.+?›\s+(.+?)\s+\(([\d.]+)s\)/);
 
@@ -138,32 +124,26 @@ function parsePlaywright(output) {
     }
   }
 
-  // Düz parse ile de toplamları al
   const summaryMatch = output.match(/(\d+)\s+passed/);
   const failSummaryMatch = output.match(/(\d+)\s+failed/);
 
   let passed = summaryMatch ? parseInt(summaryMatch[1]) : 0;
   let failed = failSummaryMatch ? parseInt(failSummaryMatch[1]) : 0;
 
-  // Detaylı parse daha doğruysa onu kullan
   if (results.length > 0) {
     passed = results.filter(r => r.status === '✅').length;
     failed = results.filter(r => r.status === '❌').length;
   }
 
-  let table;
-  if (results.length > 0) {
-    table = [
-      '| # | Test | Süre | Durum |',
-      '|---|------|------|-------|',
-      ...results.map((r, i) => {
-        const num = String(i + 1).padStart(2, '0');
-        return `| ${num} | ${r.name} | ${r.duration}s | ${r.status} |`;
-      }),
-    ].join('\n');
-  } else {
-    table = `Toplam: ${passed} geçti, ${failed} kaldı`;
-  }
+  const table = results.length > 0
+    ? [
+        '| # | Test | Süre | Durum |',
+        '|---|------|------|-------|',
+        ...results.map((r, i) =>
+          `| ${String(i + 1).padStart(2, '0')} | ${r.name} | ${r.duration}s | ${r.status} |`
+        ),
+      ].join('\n')
+    : `Toplam: ${passed} geçti, ${failed} kaldı`;
 
   return { passed, failed, table };
 }

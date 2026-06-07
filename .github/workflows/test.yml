@@ -35,8 +35,8 @@ jobs:
         id: vitest
         shell: bash
         run: |
-          npx vitest run --reporter=verbose 2>&1 | tee vitest-output.txt
-          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+          npx vitest run --reporter=json > vitest-output.json 2> vitest-error.txt
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
         continue-on-error: true
 
       # ── PLAYWRIGHT ─────────────────────────────────────────────────────

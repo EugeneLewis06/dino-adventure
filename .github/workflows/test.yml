@@ -1,0 +1,64 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [main]
+
+# Otomatik commit için write izni
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: ⬇️ Kaynak kodu checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Node.js kurulumu (ESM için >=22)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 📦 Bağımlılıkları yükle
+        run: npm ci
+
+      - name: 🎭 Playwright Chromium kur
+        run: npx playwright install chromium --with-deps
+
+      # ── VITEST ──────────────────────────────────────────────────────────
+      - name: 🧪 Vitest birim testleri
+        id: vitest
+        shell: bash
+        run: |
+          npx vitest run --reporter=verbose 2>&1 | tee vitest-output.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      # ── PLAYWRIGHT ─────────────────────────────────────────────────────
+      - name: 🔬 Playwright görsel testleri
+        id: playwright
+        shell: bash
+        run: |
+          npx playwright test --reporter=list 2>&1 | tee playwright-output.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      # ── RAPOR ──────────────────────────────────────────────────────────
+      - name: 📊 Test raporu oluştur
+        if: always()
+        run: node scripts/generate-report.cjs
+
+      # ── AUTO COMMIT ────────────────────────────────────────────────────
+      - name: 📤 Sonuçları GitHub'a yükle
+        if: always()
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'test(ci): test sonuçları güncellendi [skip ci]'
+          commit_options: '--no-verify'
+          file_pattern: 'test-reports/*.md'
+          commit_user_name: 'github-actions[bot]'
+          commit_user_email: 'github-actions[bot]@users.noreply.github.com'

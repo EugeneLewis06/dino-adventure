@@ -1,3 +1,5 @@
 ﻿node_modules/
 tum_kodlar.txt
 test-results/
+vitest-output.txt
+playwright-output.txt

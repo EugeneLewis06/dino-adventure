@@ -3,7 +3,9 @@
 [![Game Status](https://img.shields.io/badge/status-active-brightgreen)](https://github.com/EugeneLewis06/dino-adventure)
 [![Made with HTML5](https://img.shields.io/badge/HTML5-orange?logo=html5)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![Made with JavaScript](https://img.shields.io/badge/JavaScript-yellow?logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Tests](https://img.shields.io/badge/tests-vitest-brightgreen)](https://vitest.dev)
+[![Tests](https://img.shields.io/badge/tests-41%2F41%20passed-brightgreen)](https://github.com/EugeneLewis06/dino-adventure/tree/main/test-reports)
+[![Vitest](https://img.shields.io/badge/vitest-34%2F34-brightgreen)](https://vitest.dev)
+[![Playwright](https://img.shields.io/badge/playwright-7%2F7-brightgreen)](https://playwright.dev)
 
 > An action-packed endless runner game with boss battles, power-ups, and epic 8-bit soundtrack! 🎮
 
@@ -58,7 +60,8 @@ Before the boss fight, choose your power:
 | 🔊 **Sound Toggle** | Click the speaker icon in top-right to mute/unmute |
 | ⏸️ **Pause System** | Press P anytime to pause/resume the game |
 | ⏱️ **DeltaTime System** | Consistent game speed across different refresh rates |
-| 🧪 **Test Suite** | 7 test files covering game logic, audio, boss, player, obstacles, and UI |
+| 🧪 **Test Suite (Vitest)** | 7 test dosyası, 34 birim testi — oyun mantığı, ses, boss, oyuncu, engeller, UI |
+| 🔬 **Görsel Regresyon (Playwright)** | 7 canvas snapshot testi — headless Chromium'da tüm oyun durumlarını doğrular |
 | 🛠️ **ESLint + Prettier** | Code quality and formatting tools configured |
 
 ---
@@ -73,6 +76,7 @@ Before the boss fight, choose your power:
 | **requestAnimationFrame** 🔄 | Smooth 60 FPS game loop with deltaTime normalization |
 | **ES6 Modules** 📜 | Modular JavaScript architecture with clean separation of concerns |
 | **Vitest** 🧪 | Unit testing framework for game logic and mechanics |
+| **Playwright** 🔬 | Visual regression testing — canvas snapshot comparison |
 | **ESLint** 🔍 | Static code analysis and linting |
 | **Prettier** ✨ | Consistent code formatting |
 
@@ -109,11 +113,26 @@ Then open: `http://localhost:8000`
 
 ### Option 3: Running Tests
 
+**Birim Testleri (Vitest):**
 ```bash
 npm install
-npm test          # Run all tests once
-npm run test:watch # Run tests in watch mode
+npm test              # 34 birim testini çalıştır
+npm run test:watch    # Watch modunda çalıştır
 ```
+
+**Görsel Regresyon Testleri (Playwright):**
+```bash
+npx playwright install chromium   # İlk kurulumda bir kere
+npm run test:visual               # 7 canvas snapshot testini çalıştır
+npm run test:visual-update        # Snapshot'ları güncelle
+```
+
+**Tüm testler tek seferde:**
+```bash
+npm test && npm run test:visual
+```
+
+Test sonuçları: [`test-reports/TEST-REPORT.md`](test-reports/TEST-REPORT.md)
 
 ### Option 4: Linting & Formatting
 
@@ -147,8 +166,17 @@ dino-adventure/
 ├── 🧪 ui.test.js          # Leaderboard and localStorage tests
 ├── 🧪 utils.test.js       # Collision detection tests
 ├── 🧪 vitest.setup.js     # Test environment mocks (Canvas, Audio, DOM)
-├── ⚙️ vitest.config.js    # Vitest configuration
+├── ⚙️ vitest.config.js    # Vitest configuration (excludes worktrees, Playwright)
 ├── ⚙️ eslint.config.js    # ESLint flat configuration
+├── ⚙️ playwright.config.js # Playwright configuration (headless, 800×600)
+├── 🔬 tests/visual/       # Playwright görsel regresyon testleri
+│   ├── visual.spec.js     # 7 oyun durumu snapshot testi
+│   └── __snapshots__/     # Baseline PNG snapshot'lar
+├── 📁 scripts/            # Yardımcı betikler
+│   ├── serve.cjs          # Test HTTP sunucusu
+│   └── analyze-snapshots.cjs # Snapshot doğrulama
+├── 📊 test-reports/       # Test sonuç raporları
+│   └── TEST-REPORT.md    # Güncel test sonuçları
 ├── .prettierrc            # Prettier formatting rules
 ├── .prettierignore        # Files excluded from formatting
 └── 📖 README.md           # This file

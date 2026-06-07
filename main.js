@@ -812,6 +812,22 @@ window.addEventListener('resize', () => {
   updateBossPosition(boss, canvas, s.groundY);
 });
 
+// OTOMATİK TEST KANCASI — görsel regresyon testleri için oyun durumunu ve fonksiyonlarını ifşa eder
+if (typeof window !== 'undefined') {
+  window.__game__ = {
+    gameState: s,
+    canvas,
+    ctx,
+    startGame,
+    startBossBattle,
+    gameOver,
+    saveBossTime,
+    getTopBossTimes,
+    dino,
+    boss,
+  };
+}
+
 // Başlat
 createClouds(canvas.width);
 createMountains(canvas.width, s.groundY);

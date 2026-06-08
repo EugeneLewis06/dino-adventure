@@ -68,6 +68,8 @@ export const gameState = {
   lightningActive: false,
   lightningEndTime: 0,
   lightningSpeedSaved: 0,
+  lightningSpawnCount: 0,
+  nextLightningTime: 0,
   bossBattleStartTime: 0,
   bossBattleDuration: 0,
   cheatBossTimeShortened: false,
@@ -365,8 +367,11 @@ function gameLoop(currentTime) {
       s.lightningSpeedSaved = 0;
     }
 
-    if (s.gameMode === 'normal' && !s.lightningActive && lightnings.length === 0 && Math.random() < 0.01) {
+    if (s.gameMode === 'normal' && !s.lightningActive && lightnings.length === 0
+        && s.lightningSpawnCount < 5 && s.gameTime >= s.nextLightningTime) {
       spawnLightning(s.gameMode, s.groundY, canvas.width);
+      s.lightningSpawnCount++;
+      s.nextLightningTime = s.gameTime + 15 + Math.random() * 30;
     }
 
     lightnings.splice(0, lightnings.length, ...lightnings.filter(lightning => {
@@ -638,6 +643,8 @@ export function startGame() {
   s.lightningActive = false;
   s.lightningEndTime = 0;
   s.lightningSpeedSaved = 0;
+  s.lightningSpawnCount = 0;
+  s.nextLightningTime = 8 + Math.random() * 20;
   s.bossBattleDuration = 0;
   s.cheatBossTimeShortened = false;
 

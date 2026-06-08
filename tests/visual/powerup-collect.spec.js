@@ -60,12 +60,13 @@ test("01 - Kalp toplandığında heartPowerCount artmalı", async ({ page }) => 
   });
   expect(beforeHeart).toBe(0);
 
-  // Dino'nun pozisyonunun hemen üstüne bir kalp yerleştir
+  // Dino'nun pozisyonunun hemen üstüne bir kalp yerleştir (önce temizle)
   await page.evaluate(() => {
     const g = /** @type {any} */ (window).__game__;
     if (!g) return;
-    const dino = g.dino;
     const h = g.hearts();
+    h.length = 0;
+    const dino = g.dino;
     h.push({
       x: dino.x + 25,
       y: dino.y - 30,

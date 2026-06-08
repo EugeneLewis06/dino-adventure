@@ -1,4 +1,4 @@
-// Modül importları
+// Module imports
 import { checkCollision } from './utils.js';
 import { play8BitSound, toggleSound, drawSoundIcon, startBackgroundMusic, stopBackgroundMusic, audioCtx, playLightningSound } from './audio.js';
 import { scoreBoard, playerHealthDiv, bossHealthDiv, bossHealthBar, bossHealthFill, gameOverScreen, startMessage, victoryMessage, loadingMessage, hideLoadingMessage, updateScoreBoard, resetUI, showBossUI, updateBossHealth, updatePlayerHealth, hideBossUI, showGameOver, hideGameOver, showBossUpgradeScreen, updateDebugUI, removeDebugUI } from './ui.js';
@@ -21,7 +21,7 @@ const BOSS_TIMES_KEY = 'dinoBossTopTimes';
 const NORMAL_BOSS_TIME = 120;
 const SHORT_BOSS_TIME = 60;
 
-// GÖRSEL YÜKLEME
+// IMAGE LOADING
 const dinoImage = new Image();
 const elephantImage = new Image();
 const turtleImage = new Image();
@@ -39,7 +39,7 @@ elephantImage.onerror = () => { imagesLoaded++; hideLoadingMessage(); };
 turtleImage.onload = () => { imagesLoaded++; hideLoadingMessage(); };
 turtleImage.onerror = () => { imagesLoaded++; hideLoadingMessage(); };
 
-// TÜM OYUN DURUMU TEK OBJEDE
+// ALL GAME STATE IN ONE OBJECT
 export const gameState = {
   gameRunning: false,
   gameMode: 'normal',
@@ -218,7 +218,7 @@ function drawDanceScene() {
     ctx.fillStyle = '#FFF';
     ctx.font = 'bold 30px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('🏆 EN İYİ BOSS SAVAŞI SÜRELERİ 🏆', canvas.width / 2, canvas.height / 2 - 20);
+    ctx.fillText('🏆 TOP BOSS BATTLE TIMES 🏆', canvas.width / 2, canvas.height / 2 - 20);
     const medals = ['🥇', '🥈', '🥉'];
     topTimes.forEach((time, index) => {
       const yPos = canvas.height / 2 + 20 + (index * 40);
@@ -230,7 +230,7 @@ function drawDanceScene() {
     if (s.bossBattleDuration > 0) {
       ctx.fillStyle = '#90EE90';
       ctx.font = 'bold 24px Arial';
-      ctx.fillText(`Bu savaş: ${formatBossTime(s.bossBattleDuration)}`, canvas.width / 2, canvas.height / 2 + 160);
+      ctx.fillText(`This battle: ${formatBossTime(s.bossBattleDuration)}`, canvas.width / 2, canvas.height / 2 + 160);
     }
   }
 
@@ -249,7 +249,7 @@ function drawDanceScene() {
   ctx.font = 'bold 28px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('🔄 Tekrar Oyna', canvas.width / 2, btnY + btnH / 2);
+  ctx.fillText('🔄 Play Again', canvas.width / 2, btnY + btnH / 2);
   s.restartBtn = { x: btnX, y: btnY, w: btnW, h: btnH };
   drawSoundIcon(ctx, canvas, s.soundEnabled);
 }
@@ -385,7 +385,7 @@ function gameLoop(currentTime) {
         s.speed *= 1.5;
         playLightningSound();
         const msg = document.createElement('div');
-        msg.textContent = '⚡ YILDIRIM GÜCÜ! Hız +%50 & Dokunulmaz (3sn)';
+        msg.textContent = '⚡ LIGHTNING POWER! Speed +50% & Invincible (3s)';
         msg.style.cssText = 'position:fixed;top:100px;left:50%;transform:translateX(-50%);font-size:24px;color:#FFD700;font-weight:bold;text-shadow:2px 2px 4px black;z-index:300;';
         document.body.appendChild(msg);
         setTimeout(() => msg.remove(), 2000);
@@ -410,7 +410,7 @@ function gameLoop(currentTime) {
             play8BitSound('hit');
             triggerScreenShake();
             const msg = document.createElement('div');
-            msg.textContent = `KALP KORUDU! (Kalan: ${s.heartPowerCount})`;
+            msg.textContent = `HEART PROTECTED! (Remaining: ${s.heartPowerCount})`;
             msg.style.cssText = 'position:fixed;top:150px;left:50%;transform:translateX(-50%);font-size:28px;color:#ff1744;font-weight:bold;text-shadow:2px 2px 4px white;z-index:300;';
             document.body.appendChild(msg);
             setTimeout(() => msg.remove(), 1500);
@@ -434,13 +434,28 @@ function gameLoop(currentTime) {
         }
 
         if (checkCollision({x: dino.x + 15, y: dino.y - 20, width: 50, height: 70}, hitbox)) {
+          // Kaplumbağa ezme: dino düşerken kaplumbağanın üstüne inerse kaplumbağa ölür
+          if (obs.type === 'turtle' && !obs.flipped && dino.vy > 0
+              && dino.y + 60 < obs.y + 20) {
+            obs.flipped = true;
+            obs.flipTime = Date.now();
+            play8BitSound('hit');
+            dino.vy = -8;
+            dino.jumping = true;
+            const msg = document.createElement('div');
+            msg.textContent = '🐢 STOMPED!';
+            msg.style.cssText = 'position:fixed;top:150px;left:50%;transform:translateX(-50%);font-size:28px;color:#FFD700;font-weight:bold;text-shadow:2px 2px 4px black;z-index:300;';
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 1000);
+            return true;
+          }
           if (s.heartPowerCount > 0 || s.lightningActive) {
             if (!s.lightningActive) s.heartPowerCount--;
             play8BitSound('hit');
             triggerScreenShake();
             if (s.heartPowerCount > 0) {
               const msg = document.createElement('div');
-              msg.textContent = `KALP KORUDU! (Kalan: ${s.heartPowerCount})`;
+              msg.textContent = `HEART PROTECTED! (Remaining: ${s.heartPowerCount})`;
               msg.style.cssText = 'position:fixed;top:150px;left:50%;transform:translateX(-50%);font-size:28px;color:#ff1744;font-weight:bold;text-shadow:2px 2px 4px white;z-index:300;';
               document.body.appendChild(msg);
               setTimeout(() => msg.remove(), 1500);
@@ -457,7 +472,11 @@ function gameLoop(currentTime) {
       if (obs.x + obs.width > 0 && obs.x < canvas.width) {
         if (obs.type === 'cactus') drawCactus(ctx, obs.x, obs.y);
         else if (obs.type === 'pit') drawPit(ctx, obs.x, obs.y, obs.width, canvas.height);
-        else if (obs.type === 'turtle') drawTurtle(ctx, turtleImage, obs.x, obs.y, s.frameCount);
+        else if (obs.type === 'turtle') {
+          drawTurtle(ctx, turtleImage, obs.x, obs.y, s.frameCount, obs.flipped);
+          // Kaplumbağa ezildiyse 1 saniye sonra kaybolsun
+          if (obs.flipped && Date.now() - obs.flipTime > 1000) return false;
+        }
         else drawBird(ctx, obs.x, obs.y, s.frameCount);
       }
       return obs.x + obs.width > -100;
@@ -536,7 +555,7 @@ function gameLoop(currentTime) {
     if (s.invincibilityEndTime && Date.now() > s.invincibilityEndTime) {
       s.invincibilityEndTime = 0;
       const msg = document.createElement('div');
-      msg.textContent = '🛡️ Dokunulmazlık bitti!';
+      msg.textContent = '🛡️ Invincibility ended!';
       msg.style.cssText = 'position:fixed;top:200px;left:50%;transform:translateX(-50%);font-size:20px;color:#ff6b6b;font-weight:bold;text-shadow:1px 1px 2px black;z-index:300;';
       document.body.appendChild(msg);
       setTimeout(() => msg.remove(), 1500);
@@ -581,7 +600,7 @@ function resetDeltaTime() {
 
 export function gameOver() {
   s.gameRunning = false;
-  if (s.debugMode) logDebugError('Oyun bitti (gameOver çağrıldı)');
+  if (s.debugMode) logDebugError('Game Over (gameOver called)');
   showGameOver();
   stopBackgroundMusic();
 }
@@ -606,11 +625,11 @@ export function startBossBattle() {
   showBossUI(dino.health);
 
   let powerDesc = '';
-  if (s.bossChoice === 'fireball') powerDesc = '\n🔥 ATEŞ TOPU: Q tuşu ile 10 can vur! (bir kere)';
-  else if (s.bossChoice === 'shield') powerDesc = '\n🛡️ KALKAN: E tuşu ile 7 saniye dokunulmaz ol!';
+  if (s.bossChoice === 'fireball') powerDesc = '\n🔥 FIREBALL: Press Q to deal 10 damage! (one time)';
+  else if (s.bossChoice === 'shield') powerDesc = '\n🛡️ SHIELD: Press E for 7 seconds of invincibility!';
 
   const notification = document.createElement('div');
-  notification.textContent = `BOSS SAVAŞI BAŞLADI! 🎉\n\n🖱️ FARE ile hareket et\n🖱️ SOL TIK ile ateş et (1 can)${powerDesc}\n\nSen: ${dino.health} Can | Boss Fil: 30 Can`;
+  notification.textContent = `BOSS BATTLE STARTED! 🎉\n\n🖱️ MOUSE to move\n🖱️ LEFT CLICK to shoot (1 damage)${powerDesc}\n\nYou: ${dino.health} HP | Elephant Boss: 30 HP`;
   notification.style.cssText = 'position:fixed;top:100px;left:50%;transform:translateX(-50%);font-size:22px;color:#FFD700;font-weight:bold;text-shadow:2px 2px 4px black;z-index:300;background:rgba(0,0,0,0.7);padding:20px 30px;border-radius:10px;white-space:pre-line;text-align:center;';
   document.body.appendChild(notification);
   setTimeout(() => notification.remove(), 2000);
@@ -667,7 +686,7 @@ export function startGame() {
 
 function toggleFullscreen() {
   if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(err => { console.log('Tam ekran hatası:', err); });
+    document.documentElement.requestFullscreen().catch(err => { console.log('Fullscreen error:', err); });
   } else {
     document.exitFullscreen();
   }
@@ -741,7 +760,7 @@ window.addEventListener('keydown', (e) => {
       s.debugErrors.length = 0;
       removeDebugUI();
     }
-    console.log(`Debug modu: ${s.debugMode ? 'AÇIK' : 'KAPALI'}`);
+    console.log(`Debug mode: ${s.debugMode ? 'ON' : 'OFF'}`);
     return;
   }
 
@@ -755,7 +774,7 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault();
     s.cheatBossTimeShortened = true;
     const msg = document.createElement('div');
-    msg.textContent = 'Kısaltma Aktif Edildi';
+    msg.textContent = 'Shortcut Activated';
     msg.style.cssText = 'position:fixed;top:180px;left:50%;transform:translateX(-50%);font-size:28px;color:#FFD700;font-weight:bold;text-shadow:2px 2px 4px black;z-index:300;';
     document.body.appendChild(msg);
     setTimeout(() => msg.remove(), 2000);
@@ -768,7 +787,7 @@ window.addEventListener('keydown', (e) => {
       s.gamePaused = !s.gamePaused;
       if (s.gamePaused) s.pauseStartTime = Date.now();
       else s.totalPausedTime += Date.now() - s.pauseStartTime;
-      console.log(s.gamePaused ? 'Oyun duraklatıldı' : 'Oyun devam ediyor');
+      console.log(s.gamePaused ? 'Game paused' : 'Game resumed');
     }
     return;
   }
@@ -803,7 +822,7 @@ window.addEventListener('keydown', (e) => {
       s.invincibilityActive = false;
       play8BitSound('doubleJump');
       const msg = document.createElement('div');
-      msg.textContent = '🛡️ DOKUNULMAZLIK AKTİF! (7sn)';
+      msg.textContent = '🛡️ INVINCIBILITY ACTIVE! (7s)';
       msg.style.cssText = 'position:fixed;top:200px;left:50%;transform:translateX(-50%);font-size:24px;color:#FFD700;font-weight:bold;text-shadow:2px 2px 4px black;z-index:300;';
       document.body.appendChild(msg);
       setTimeout(() => msg.remove(), 2000);
@@ -819,7 +838,7 @@ window.addEventListener('resize', () => {
   updateBossPosition(boss, canvas, s.groundY);
 });
 
-// OTOMATİK TEST KANCASI — görsel regresyon testleri için oyun durumunu ve fonksiyonlarını ifşa eder
+// AUTOMATIC TEST HOOK — exposes game state and functions for visual regression tests
 if (typeof window !== 'undefined') {
   window.__game__ = {
     gameState: s,

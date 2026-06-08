@@ -177,8 +177,16 @@ export function drawPit(ctx, x, y, width, canvasHeight) {
 }
 
 // Kaplumbağa çiz
-export function drawTurtle(ctx, turtleImage, x, y, frameCount) {
-    const bounceY = Math.abs(Math.sin(frameCount * 0.05)) * 120;
+export function drawTurtle(ctx, turtleImage, x, y, frameCount, flipped = false) {
+    if (flipped) {
+        ctx.save();
+        ctx.translate(x + 35, y + 50);
+        ctx.scale(1, -1);
+        ctx.translate(-(x + 35), -(y + 50));
+        ctx.globalAlpha = 0.5;
+    }
+
+    const bounceY = flipped ? 0 : Math.abs(Math.sin(frameCount * 0.05)) * 120;
     const drawY = y - bounceY;
 
     if (turtleImage.complete && turtleImage.naturalWidth > 0) {
@@ -188,6 +196,11 @@ export function drawTurtle(ctx, turtleImage, x, y, frameCount) {
         ctx.beginPath();
         ctx.ellipse(x + 35, drawY + 30, 35, 30, 0, 0, Math.PI * 2);
         ctx.fill();
+    }
+
+    if (flipped) {
+        ctx.globalAlpha = 1;
+        ctx.restore();
     }
 }
 

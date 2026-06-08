@@ -1,27 +1,27 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dinozor Macerası</title>
+    <title>Dino Adventure</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="loadingMessage">Görseller yükleniyor...</div>
-    <div id="scoreBoard">MESAFE: 0</div>
-    <div id="playerHealth">CAN: 5</div>
-    <div id="bossHealth">BOSS CANI</div>
+    <div id="loadingMessage">Loading images...</div>
+    <div id="scoreBoard">DISTANCE: 0</div>
+    <div id="playerHealth">HP: 5</div>
+    <div id="bossHealth">BOSS HP</div>
     <div id="bossHealthBar"><div id="bossHealthFill"></div></div>
-    <div id="startMessage">Tıkla ve Başla!<br><small>Engellerden kaç, bossu yen!</small></div>
+    <div id="startMessage">Click to Start!<br><small>Avoid obstacles, defeat the boss!</small></div>
     <div id="gameOver">
-        KAYBETTİN!
-        <p>Yeniden başlamak için tıkla</p>
+        YOU LOST!
+        <p>Click to restart</p>
     </div>
     <div id="victoryMessage">
-        KAZANDIN!
+        YOU WON!
     </div>
     <div id="instructions">
-        Tıkla = Zıpla | Çift Tık = Çift Zıplama | P = Duraklat | WASD = Hareket (Boss) | Space = Ateş (Boss)
+        Click = Jump | Double Click = Double Jump | P = Pause | H = Shortcut (Boss in 30s) | WASD = Move (Boss) | Space = Shoot (Boss)
     </div>
     <canvas id="gameCanvas"></canvas>
 

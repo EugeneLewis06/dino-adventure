@@ -88,7 +88,7 @@ async function triggerBossMode(page, choice = 'fireball') {
     if (power === 'shield') g.gameState.invincibilityActive = true;
     g.startBossBattle();
   }, choice);
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(2500);
 }
 
 // ---------------------------------------------------------------------------
@@ -231,7 +231,7 @@ test('07 - Game over ekranı doğru render edilmeli', async ({ page }) => {
   });
 
   await expect(page.locator('#gameOver')).toBeVisible();
-  await expect(page.locator('#gameOver')).toContainText('KAYBETTİN');
+  await expect(page.locator('#gameOver')).toContainText('YOU LOST');
   await page.waitForTimeout(200);
 
   await expect(page.locator('#gameCanvas')).toHaveScreenshot('07-game-over.png');

@@ -132,7 +132,7 @@ function specialShoot(dino, gameMode, bullets, specialAttackUsed, play8BitSound)
     
     // Mesaj oluştur
     const message = {
-        text: '🔥 ÖZEL ATEŞ TOPU!',
+        text: '🔥 SPECIAL FIREBALL!',
         duration: 2000
     };
     

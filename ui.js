@@ -1,5 +1,5 @@
-// ui.js - Kullanıcı Arayüzü Modülü
-// DOM elementleri ve UI fonksiyonları
+// ui.js - UI Module
+// DOM elements and UI functions
 
 // DOM Elementleri
 export const scoreBoard = document.getElementById('scoreBoard');
@@ -25,20 +25,20 @@ export function updateScoreBoard(gameMode, gameTime, targetTime = 120) {
         const minutes = Math.floor(gameTime / 60);
         const seconds = Math.floor(gameTime % 60);
         const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        scoreBoard.textContent = `SURE: ${timeStr} / ${targetStr}`;
+        scoreBoard.textContent = `TIME: ${timeStr} / ${targetStr}`;
     } else if (gameMode === 'boss') {
         const minutes = Math.floor(gameTime / 60);
         const seconds = Math.floor(gameTime % 60);
         const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        scoreBoard.textContent = `SÜRE: ${timeStr} / ${targetStr} | Hedef: Boss`;
+        scoreBoard.textContent = `TIME: ${timeStr} / ${targetStr} | Target: Boss`;
         scoreBoard.style.fontSize = '20px';
     }
 }
 
 // Oyun başlangıcı UI
 export function resetUI() {
-    scoreBoard.textContent = 'SÜRE: 0:00 / 2:00 | Hedef: Boss';
-    playerHealthDiv.textContent = 'CAN: 50';
+    scoreBoard.textContent = 'TIME: 0:00 / 2:00 | Target: Boss';
+    playerHealthDiv.textContent = 'HP: 50';
     playerHealthDiv.style.display = 'none';
     bossHealthDiv.style.display = 'none';
     bossHealthBar.style.display = 'none';
@@ -54,7 +54,7 @@ export function showBossUI(dinoHealth) {
     bossHealthDiv.style.display = 'block';
     bossHealthBar.style.display = 'block';
     bossHealthFill.style.width = '100%';
-    playerHealthDiv.textContent = `CAN: ${dinoHealth}`;
+    playerHealthDiv.textContent = `HP: ${dinoHealth}`;
 }
 
 // Boss can barını güncelle
@@ -64,7 +64,7 @@ export function updateBossHealth(bossHealth, bossMaxHealth) {
 
 // Oyuncu canını güncelle
 export function updatePlayerHealth(dinoHealth) {
-    playerHealthDiv.textContent = `CAN: ${dinoHealth}`;
+    playerHealthDiv.textContent = `HP: ${dinoHealth}`;
 }
 
 // Boss savaşı sonu UI temizliği
@@ -126,13 +126,13 @@ export function updateDebugUI(fps, errors) {
             pointer-events:none;
         ">
             <div style="font-weight:bold;font-size:14px;border-bottom:1px solid #00ff00;margin-bottom:6px;padding-bottom:4px;">
-                🐛 DEBUG MODU
+                🐛 DEBUG MODE
             </div>
             <div>
                 FPS: <span style="color:${fpsColor};font-weight:bold;">${fps}</span>
             </div>
             <div>
-                Hata Sayısı: <span style="color:${errorCount > 0 ? '#ff4444' : '#00ff00'};font-weight:bold;">${errorCount}</span>
+                Errors: <span style="color:${errorCount > 0 ? '#ff4444' : '#00ff00'};font-weight:bold;">${errorCount}</span>
             </div>
             ${errorCount > 0 ? `
                 <div style="margin-top:8px;border-top:1px solid #333;padding-top:6px;">
@@ -154,28 +154,28 @@ export function showBossUpgradeScreen(onChoiceSelected) {
     }
     
     upgradeDiv.innerHTML = `
-        <h2 style="margin:0 0 20px 0;font-size:32px;text-shadow:2px 2px 4px rgba(0,0,0,0.5);">🎉 BOSS SAVAŞI! 🎉</h2>
-        <p style="font-size:16px;margin:10px 0 20px 0;opacity:0.9;">BOSS'a karşı hangi gücü kullanmak istersin?<br>Sadece birini seçebilirsin!</p>
+        <h2 style="margin:0 0 20px 0;font-size:32px;text-shadow:2px 2px 4px rgba(0,0,0,0.5);">🎉 BOSS BATTLE! 🎉</h2>
+        <p style="font-size:16px;margin:10px 0 20px 0;opacity:0.9;">Which power do you want to use against the BOSS?<br>You can only choose one!</p>
         
         <div style="display:flex;flex-direction:column;gap:15px;align-items:center;">
             <label style="display:flex;align-items:center;gap:15px;padding:15px;background:rgba(255,100,50,0.2);border:2px solid #ff6347;border-radius:10px;cursor:pointer;transition:all 0.3s;width:100%;">
                 <input type="radio" name="bossChoice" value="fireball" style="width:24px;height:24px;cursor:pointer;">
                 <div style="text-align:left;">
-                    <div style="font-weight:bold;font-size:18px;color:#ff6347;">🔥 ATEŞ TOPU</div>
-                    <div style="font-size:14px;opacity:0.9;">BOSS'tan 10 can götürür!<br><small>(Q tuşu ile kullan)</small></div>
+                    <div style="font-weight:bold;font-size:18px;color:#ff6347;">🔥 FIREBALL</div>
+                    <div style="font-size:14px;opacity:0.9;">Deals 10 damage to BOSS!<br><small>(Press Q to use)</small></div>
                 </div>
             </label>
             
             <label style="display:flex;align-items:center;gap:15px;padding:15px;background:rgba(100,150,255,0.2);border:2px solid #6496ff;border-radius:10px;cursor:pointer;transition:all 0.3s;width:100%;">
                 <input type="radio" name="bossChoice" value="shield" style="width:24px;height:24px;cursor:pointer;">
                 <div style="text-align:left;">
-                    <div style="font-weight:bold;font-size:18px;color:#6496ff;">🛡️ KALKAN</div>
-                    <div style="font-size:14px;opacity:0.9;">7 saniye hasar almazsın!<br><small>(E tuşu ile aktif et)</small></div>
+                    <div style="font-weight:bold;font-size:18px;color:#6496ff;">🛡️ SHIELD</div>
+                    <div style="font-size:14px;opacity:0.9;">7 seconds of invincibility!<br><small>(Press E to activate)</small></div>
                 </div>
             </label>
         </div>
         
-        <button id="startBossBtn" style="margin-top:25px;padding:15px 40px;font-size:20px;background:#FFD700;color:#2d5016;border:none;border-radius:10px;cursor:pointer;font-weight:bold;box-shadow:0 5px 15px rgba(0,0,0,0.3);transition:all 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">BOSS'A GİT!</button>
+        <button id="startBossBtn" style="margin-top:25px;padding:15px 40px;font-size:20px;background:#FFD700;color:#2d5016;border:none;border-radius:10px;cursor:pointer;font-weight:bold;box-shadow:0 5px 15px rgba(0,0,0,0.3);transition:all 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">FIGHT BOSS!</button>
     `;
     
     upgradeDiv.style.display = 'block';
@@ -185,7 +185,7 @@ export function showBossUpgradeScreen(onChoiceSelected) {
         const selectedChoice = document.querySelector('input[name="bossChoice"]:checked');
         
         if (!selectedChoice) {
-            alert('Lütfen bir güç seç! (Ateş Topu veya Kalkan)');
+            alert('Please select a power! (Fireball or Shield)');
             return;
         }
         

@@ -41,22 +41,20 @@ async function advanceTime(page, ms) {
 // TEST 1: Sayfa yüklendiğinde skor tablosu başlangıç metni
 // HTML'deki varsayılan metin "MESAFE: 0". Game over gizli.
 // =============================================================================
-test('01 - Sayfa yüklendiğinde #scoreBoard "MESAFE: 0" göstermeli', async ({ page }) => {
+test('01 - Scoreboard should show "DISTANCE: 0" on page load', async ({ page }) => {
   await resetPage(page);
 
   const scoreText = await page.locator('#scoreBoard').textContent();
-  expect(scoreText).toContain('MESAFE');
+  expect(scoreText).toContain('DISTANCE');
   expect(scoreText).toContain('0');
 
   await expect(page.locator('#gameOver')).toBeHidden();
 });
 
 // =============================================================================
-// TEST 2: Oyun başladıktan 5 saniye sonra skor tablosu güncellenmeli
-// startGame() → resetUI() → gameLoop updateScoreBoard ile
-// "SURE: 0:05 / 2:00" formatında süre gösterir.
+// TEST 2
 // =============================================================================
-test('02 - Oyun başladıktan 5 saniye sonra #scoreBoard güncellenmeli', async ({ page }) => {
+test('02 - Scoreboard should show time after 5 seconds of gameplay', async ({ page }) => {
   await resetPage(page);
 
   await page.evaluate(() => {
@@ -71,16 +69,14 @@ test('02 - Oyun başladıktan 5 saniye sonra #scoreBoard güncellenmeli', async 
   await page.waitForTimeout(200);
 
   const scoreText = await page.locator('#scoreBoard').textContent();
-  expect(scoreText).toMatch(/S[UÜ]RE:\s*\d+:\d{2}\s*\/\s*\d+:\d{2}/);
+  expect(scoreText).toMatch(/TIME:\s*\d+:\d{2}\s*\/\s*\d+:\d{2}/);
   expect(scoreText).toContain('0:05');
 });
 
 // =============================================================================
-// TEST 3: Game Over ekranı doğru zamanda görünmeli
-// gameOver() çağrıldığında #gameOver "KAYBETTİN!" ile görünür olur,
-// skor tablosu son değeri göstermeye devam eder.
+// TEST 3: Game Over screen should appear at the right time
 // =============================================================================
-test('03 - Game Over ekranı doğru zamanda görünmeli', async ({ page }) => {
+test('03 - Game Over screen should appear at the right time', async ({ page }) => {
   await resetPage(page);
 
   await page.evaluate(() => {
@@ -97,8 +93,8 @@ test('03 - Game Over ekranı doğru zamanda görünmeli', async ({ page }) => {
   });
 
   await expect(page.locator('#gameOver')).toBeVisible();
-  await expect(page.locator('#gameOver')).toContainText('KAYBETTİN');
+  await expect(page.locator('#gameOver')).toContainText('YOU LOST');
 
   const scoreText = await page.locator('#scoreBoard').textContent();
-  expect(scoreText).toMatch(/S[UÜ]RE:\s*\d+:\d{2}\s*\/\s*\d+:\d{2}/);
+  expect(scoreText).toMatch(/TIME:\s*\d+:\d{2}\s*\/\s*\d+:\d{2}/);
 });

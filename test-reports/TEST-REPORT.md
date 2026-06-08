@@ -1,8 +1,8 @@
 # Test Raporu
 
-**Tarih:** 2026-06-08 10:49  
+**Tarih:** 2026-06-08 10:51  
 **Dal:** `main`  
-**Commit:** `5beebc1`  
+**Commit:** `ca40629`  
 **CI:** GitHub Actions  
 
 ---
